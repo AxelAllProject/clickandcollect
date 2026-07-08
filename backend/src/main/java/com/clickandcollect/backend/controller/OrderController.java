@@ -6,10 +6,8 @@ import com.clickandcollect.backend.model.Order;
 import com.clickandcollect.backend.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -21,5 +19,11 @@ public class OrderController {
     @PostMapping
     public OrderResponseDTO createOrder(@Valid @RequestBody OrderRequestDTO request){
         return orderService.createOrder(request);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/{id}/status")
+    public OrderResponseDTO updateOrderStatus(@PathVariable Long id,@RequestParam String status ) {
+        return orderService.updateOrderStatus(id, status);
     }
 }

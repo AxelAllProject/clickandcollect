@@ -82,4 +82,37 @@ public class OrderService {
         return finalResponse;
     }
 
+    public OrderResponseDTO updateOrderStatus(Long orderId, String newStatus){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("La commande n'a pas été trouvé"));
+        order.setStatus(newStatus);
+
+        Order savedOrder = orderRepository.save(order);
+
+        return mapToOrderResponseDTO(savedOrder);
+
+    }
+
+    private OrderResponseDTO mapToOrderResponseDTO(Order order) {
+        List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
+        List<OrderItemResponseDTO> itemDTOs = new ArrayList<>();
+
+        for (OrderItem item : items) {
+            itemDTOs.add(new OrderItemResponseDTO(
+                    item.getId(),
+                    item.getProduct().getId(),
+                    item.getQuantity(),
+                    item.getPrice()
+            ));
+        }
+
+        return new OrderResponseDTO(
+                order.getId(),
+                order.getUser().getId(),
+                order.getStatus(),
+                order.getCreatedAt(),
+                itemDTOs
+        );
+    }
+
 }

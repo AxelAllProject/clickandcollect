@@ -1,10 +1,12 @@
 package com.clickandcollect.backend.controller;
 
-import com.clickandcollect.backend.dto.ProductCreateDTO;
+import com.clickandcollect.backend.dto.ProductRequestDTO;
+import com.clickandcollect.backend.dto.ProductResponseDTO;
 import com.clickandcollect.backend.model.Product;
 import com.clickandcollect.backend.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,33 +19,28 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<Product> getAllProducts(){
+    public List<ProductResponseDTO> getAllProduct(){
         return productService.getAllProducts();
     }
 
     @GetMapping("/{id}")
-    public Product getProductById(@PathVariable Long id){
+    public ProductResponseDTO getProductById(@PathVariable Long id){
         return productService.getProductById(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
-    public Product createProduct(@Valid @RequestBody ProductCreateDTO productDTO){
-
-        Product product = new Product();
-
-        product.setName(productDTO.getName());
-        product.setPrice(productDTO.getPrice());
-        product.setStock(productDTO.getStock());
-        product.setImageUrl(productDTO.getImageUrl());
-
-        return productService.createProduct(product);
+    public ProductResponseDTO createProduct(@Valid @RequestBody ProductRequestDTO request){
+        return productService.createProduct(request);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id, @RequestBody Product productDetails){
-        return productService.updateProduct(id, productDetails);
+    public ProductResponseDTO updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO request){
+        return productService.updateProduct(id, request);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
     public void deleteProduct(@PathVariable Long id){
         productService.deleteProduct(id);
