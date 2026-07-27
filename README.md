@@ -10,7 +10,7 @@
 
 ---
 
-## 🚀 Fonctionnalités actuelles
+## Fonctionnalités actuelles
 
 - **Authentification sécurisée** : Inscription et connexion avec tokens JWT.
 - **Validation stricte** : Mots de passe robustes (12+ caractères) et contraintes de saisie.
@@ -20,7 +20,7 @@
 
 ---
 
-## 🛠️ Stack Technique
+## Stack Technique
 
 ### Frontend (Client)
 - **Framework** : React.js (Vite)
@@ -36,24 +36,24 @@
 
 ---
 
-## 🗺️ Roadmap du Projet
+## Roadmap du Projet
 
 Voici les prochaines étapes de développement pour finaliser l'application. 
 
-### Phase 1 : Fondations & Sécurité (✅ Terminée)
+### Phase 1 : Fondations & Sécurité (Terminée)
 - [x] Initialisation du backend Spring Boot et du frontend React.
 - [x] Configuration de Spring Security et implémentation du JWT.
 - [x] Création des entités User et des endpoints d'authentification (`/login`, `/register`).
 - [x] Mise en place du Layout Frontend (Navbar premium, footer).
 - [x] Connexion Frontend/Backend et récupération dynamique du profil (`/me`).
 
-### Phase 2 : Catalogue & Produits (🚧 En cours)
+### Phase 2 : Catalogue & Produits (En cours)
 - [ ] **Backend** : Créer l'entité `Product` (id, nom, description, prix, image, catégorie).
 - [ ] **Backend** : Créer le CRUD pour les produits (`GET`, `POST`, `PUT`, `DELETE`).
 - [ ] **Frontend** : Finaliser `CataloguePage.jsx` pour afficher les produits depuis la BDD.
 - [ ] **Frontend** : Ajouter un système de filtres (par catégories) et une barre de recherche.
 
-### Phase 3 : Panier & Commandes (⏳ À faire)
+### Phase 3 : Panier & Commandes (À faire)
 - [ ] **Frontend** : Implémenter la logique du Panier (State management, ajout/retrait d'articles).
 - [ ] **Backend** : Créer l'entité `Order` (statut, total, date) et `OrderItem` (détails de la commande).
 - [ ] **Backend** : Endpoint pour valider une commande (`POST /api/orders`).
@@ -72,7 +72,7 @@ Voici les prochaines étapes de développement pour finaliser l'application.
 
 ---
 
-## 💻 Instructions d'installation
+## Instructions d'installation
 
 ### 1. Cloner le dépôt
 ```bash
