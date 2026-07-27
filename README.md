@@ -48,8 +48,6 @@ Voici les prochaines étapes de développement pour finaliser l'application.
 - [x] Connexion Frontend/Backend et récupération dynamique du profil (`/me`).
 
 ### Phase 2 : Catalogue & Produits (En cours)
-- [ ] **Backend** : Créer l'entité `Product` (id, nom, description, prix, image, catégorie).
-- [ ] **Backend** : Créer le CRUD pour les produits (`GET`, `POST`, `PUT`, `DELETE`).
 - [ ] **Frontend** : Finaliser `CataloguePage.jsx` pour afficher les produits depuis la BDD.
 - [ ] **Frontend** : Ajouter un système de filtres (par catégories) et une barre de recherche.
 
