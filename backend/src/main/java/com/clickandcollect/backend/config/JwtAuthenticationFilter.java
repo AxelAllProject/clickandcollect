@@ -33,9 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = authHeader.substring(7);
         String userEmail = jwtService.extractUsername(jwt);
 
-        if (userEmail != null & org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() == null){
-            User user = userRepository.findByEmail(userEmail).orElseThrow();
-            if (jwtService.isTokenValid(jwt, user)){
+        if (userEmail != null && org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication() == null){
+            var optionalUser = userRepository.findByEmail(userEmail);
+            if (optionalUser.isPresent()){
+                User user = optionalUser.get();
+                if (jwtService.isTokenValid(jwt, user)){
                 var authToken = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
                         user,
                         null,
@@ -43,6 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 authToken.setDetails(new org.springframework.security.web.authentication.WebAuthenticationDetailsSource().buildDetails(request));
                 org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
             }
         }
         filterChain.doFilter(request, response);

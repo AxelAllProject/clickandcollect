@@ -7,7 +7,7 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     
-    // Outil de React Router pour forcer le changement de page
+
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {

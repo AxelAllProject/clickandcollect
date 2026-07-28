@@ -5,6 +5,22 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     // On vérifie si le token existe pour savoir si on est connecté
     const isLoggedIn = !!localStorage.getItem('jwt_token');
+    const getUserRole = () => {
+        try {
+            const token = localStorage.getItem('jwt_token');
+            if (!token) return null;
+            const payload = token.split('.')[1];
+            const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            const obj = JSON.parse(jsonPayload);
+            return obj.role || null;
+        } catch (e) {
+            return null;
+        }
+    };
+    const userRole = getUserRole();
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -20,6 +36,9 @@ const Navbar = () => {
                 
                 <div className="flex items-center gap-6">
                     <Link to="/catalog" className="font-semibold text-gray-600 hover:text-orange-500">Menu</Link>
+                    {userRole === 'ADMIN' && (
+                        <Link to="/admin" className="font-semibold text-gray-600 hover:text-orange-500">Admin</Link>
+                    )}
 
                     {isLoggedIn ? (
                         /* Menu déroulant profil */

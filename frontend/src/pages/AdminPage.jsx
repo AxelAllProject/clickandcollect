@@ -9,9 +9,18 @@ const AdminPage = () => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [price, setPrice] = useState('');
+    const [stock, setStock] = useState('');
     const [imageUrl, setImageUrl] = useState('');
     
     const [message, setMessage] = useState('');
+    const [promoteEmail, setPromoteEmail] = useState('');
+    // Edition
+    const [editingId, setEditingId] = useState(null);
+    const [editName, setEditName] = useState('');
+    const [editDescription, setEditDescription] = useState('');
+    const [editPrice, setEditPrice] = useState('');
+    const [editImageUrl, setEditImageUrl] = useState('');
+    const [editStock, setEditStock] = useState('');
 
     // --- 2. LA TUYAUTERIE ---
     // A. Charger les produits (READ)
@@ -37,11 +46,13 @@ const AdminPage = () => {
                 name,
                 description,
                 price: parseFloat(price), // On s'assure que c'est un nombre
+                stock: parseInt(stock || '0'),
                 imageUrl
             });
             setMessage("✅ Produit ajouté avec succès !");
             // On vide le formulaire
             setName(''); setDescription(''); setPrice(''); setImageUrl('');
+            setStock('');
             // On recharge la liste pour voir le nouveau produit
             loadProducts();
         } catch (err) {
@@ -61,6 +72,41 @@ const AdminPage = () => {
         } catch (err) {
             console.error("Erreur de suppression:", err);
             setMessage("❌ Erreur lors de la suppression.");
+        }
+    };
+
+    // D. Préparer l'édition
+    const startEdit = (product) => {
+        setEditingId(product.id);
+        setEditName(product.name || '');
+        setEditDescription(product.description || '');
+        setEditPrice(product.price || '');
+        setEditImageUrl(product.imageUrl || '');
+        setEditStock(product.stock || 0);
+        setMessage('');
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setEditName(''); setEditDescription(''); setEditPrice(''); setEditImageUrl('');
+    };
+
+    const handleSaveEdit = async (e) => {
+        e.preventDefault();
+        try {
+            await api.put(`/products/${editingId}`, {
+                name: editName,
+                description: editDescription,
+                price: parseFloat(editPrice),
+                stock: parseInt(editStock || '0'),
+                imageUrl: editImageUrl
+            });
+            setMessage('✅ Produit mis à jour.');
+            cancelEdit();
+            loadProducts();
+        } catch (err) {
+            console.error('Erreur mise à jour:', err);
+            setMessage('❌ Erreur lors de la mise à jour.');
         }
     };
 
@@ -111,6 +157,12 @@ const AdminPage = () => {
                             </div>
 
                             <div>
+                                <label className="text-sm font-semibold text-gray-700">Stock</label>
+                                <input type="number" step="1" min="0" value={stock} onChange={(e) => setStock(e.target.value)} required
+                                    className="w-full p-2 mt-1 rounded border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none" />
+                            </div>
+
+                            <div>
                                 <label className="text-sm font-semibold text-gray-700">URL de l'image (Optionnel)</label>
                                 <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
                                     placeholder="https://..."
@@ -121,6 +173,27 @@ const AdminPage = () => {
                                 + Créer le produit
                             </button>
                         </form>
+
+                        <div className="mt-6 border-t pt-4">
+                            <h3 className="text-sm font-bold text-gray-700 mb-2">Promouvoir un utilisateur</h3>
+                            <p className="text-xs text-gray-500 mb-2">Entrez l'email et cliquez sur Promouvoir (nécessite token ADMIN).</p>
+                            <div className="flex gap-2">
+                                <input type="email" value={promoteEmail} onChange={(e) => setPromoteEmail(e.target.value)} placeholder="user@example.com"
+                                    className="w-full p-2 rounded border border-gray-300" />
+                                <button onClick={async () => {
+                                    try {
+                                        await api.post('/admin/promote', { email: promoteEmail });
+                                        setMessage('✅ Utilisateur promu en ADMIN.');
+                                        setPromoteEmail('');
+                                    } catch (err) {
+                                        console.error('Erreur promotion:', err);
+                                        setMessage('❌ Impossible de promouvoir (vérifie les droits).');
+                                    }
+                                }} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-4 rounded">
+                                    Promouvoir
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -130,33 +203,60 @@ const AdminPage = () => {
                         <h2 className="text-lg font-bold text-gray-800 mb-4">Stock actuel ({products.length})</h2>
                         
                         <div className="flex flex-col gap-3">
-                            {products.length === 0 ? (
+                                {products.length === 0 ? (
                                 <p className="text-gray-500 italic">Aucun produit dans la base de données.</p>
-                            ) : (
+                                ) : (
                                 products.map((product) => (
-                                    <div key={product.id} className="flex justify-between items-center p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                                                {product.imageUrl ? (
-                                                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                                                ) : (
-                                                    <span className="flex items-center justify-center h-full text-xl">🍔</span>
-                                                )}
+                                    <div key={product.id} className="p-4 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
+                                        {editingId === product.id ? (
+                                            <form onSubmit={handleSaveEdit} className="flex flex-col gap-3">
+                                                <input value={editName} onChange={(e) => setEditName(e.target.value)} required
+                                                    className="p-2 rounded border" />
+                                                <textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} rows={2}
+                                                    className="p-2 rounded border" />
+                                                <input type="number" step="0.01" value={editPrice} onChange={(e) => setEditPrice(e.target.value)}
+                                                    className="p-2 rounded border" />
+                                                <input type="number" step="1" min="0" value={editStock} onChange={(e) => setEditStock(e.target.value)}
+                                                    className="p-2 rounded border" />
+                                                <input value={editImageUrl} onChange={(e) => setEditImageUrl(e.target.value)}
+                                                    className="p-2 rounded border" />
+                                                <div className="flex gap-2">
+                                                    <button className="bg-green-600 text-white p-2 rounded">Enregistrer</button>
+                                                    <button type="button" onClick={cancelEdit} className="bg-gray-200 p-2 rounded">Annuler</button>
+                                                </div>
+                                            </form>
+                                        ) : (
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
+                                                        {product.imageUrl ? (
+                                                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span className="flex items-center justify-center h-full text-xl">🍔</span>
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-bold text-gray-800">{product.name}</h3>
+                                                        <p className="text-sm text-gray-500 font-semibold">{product.price} €</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => startEdit(product)}
+                                                        className="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg transition-colors font-bold text-sm">
+                                                        Éditer
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteProduct(product.id)}
+                                                        className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors font-bold text-sm"
+                                                    >
+                                                        Supprimer
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h3 className="font-bold text-gray-800">{product.name}</h3>
-                                                <p className="text-sm text-gray-500 font-semibold">{product.price} €</p>
-                                            </div>
-                                        </div>
-                                        <button 
-                                            onClick={() => handleDeleteProduct(product.id)}
-                                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors font-bold text-sm"
-                                        >
-                                            Supprimer
-                                        </button>
+                                        )}
                                     </div>
                                 ))
-                            )}
+                                )}
                         </div>
                     </div>
                 </div>

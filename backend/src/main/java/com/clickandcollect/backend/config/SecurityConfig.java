@@ -32,8 +32,13 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
-                );
+                )
+                .headers(headers -> headers
+            .frameOptions(frameOptions -> frameOptions.disable()) // ⬅️ AJOUTER CE BLOC
+        );
+
 
 
         return http.build();
