@@ -3,14 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api'; 
 
 const CataloguePage = () => {
-    // --- LA MÉMOIRE ---
+
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [search, setSearch] = useState('');
     
     const navigate = useNavigate();
 
-    // --- LA TUYAUTERIE ---
+  
     useEffect(() => {
         const loadProducts = async () => {
             try {
@@ -29,11 +30,11 @@ const CataloguePage = () => {
     }, []);
 
     const handleLogout = () => {
-        localStorage.removeItem('jwt_token'); // On vide le coffre-fort
-        navigate('/login'); // On retourne à l'accueil
+        localStorage.removeItem('jwt_token');
+        navigate('/login'); 
     };
 
-    // --- LE VISUEL (DA TAILWIND) ---
+
     return (
         <div className="min-h-screen bg-gray-100 font-sans pb-12">
             
@@ -52,49 +53,48 @@ const CataloguePage = () => {
 
                 {/* La Grille des Produits */}
                 {!loading && !error && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        
-                        {/* Boucle d'affichage React */}
-                        {products.map((product) => (
-                            <div key={product.id} className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden flex flex-col">
-                                
-                                {/* Zone Image */}
-                                <div className="h-48 bg-orange-50 flex items-center justify-center">
-                                    {product.imageUrl ? (
-                                        <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span className="text-4xl">🍔</span> // Icône par défaut si pas d'image
-                                    )}
-                                </div>
+                    <div>
+                        <div className="mb-6 flex justify-between items-center gap-4">
+                            <input
+                                type="search"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Rechercher un produit..."
+                                className="w-full sm:w-1/2 p-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-orange-300 outline-none"
+                            />
+                        </div>
 
-                                {/* Zone Informations */}
-                                <div className="p-5 flex flex-col flex-grow">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-1">{product.name}</h3>
-                                    <p className="text-sm text-gray-500 mb-4 flex-grow line-clamp-3">
-                                        {product.description}
-                                    </p>
-                                    
-                                    {/* Prix et Bouton */}
-                                    <div className="flex justify-between items-center mt-auto">
-                                        <span className="text-xl font-black text-orange-500">
-                                            {product.price} €
-                                        </span>
-                                        <button className="bg-gray-100 hover:bg-orange-500 hover:text-white text-gray-800 font-bold py-2 px-4 rounded-xl transition-colors duration-200">
-                                            Ajouter
-                                        </button>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                            {products.filter(p => p.name && p.name.toLowerCase().includes(search.toLowerCase())).map((product) => (
+                                <article key={product.id} className="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col">
+                                    <div className="relative h-48 bg-gray-100 flex items-center justify-center overflow-hidden">
+                                        {product.imageUrl ? (
+                                            <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="text-4xl">🍔</div>
+                                        )}
+                                        <span className="absolute top-3 left-3 bg-white/80 text-sm px-2 py-1 rounded font-semibold">{product.name}</span>
                                     </div>
+
+                                    <div className="p-4 flex flex-col flex-grow">
+                                        <p className="text-sm text-gray-600 mb-3 flex-grow line-clamp-3">{product.description}</p>
+
+                                        <div className="flex items-center justify-between mt-4">
+                                            <div className="flex items-baseline gap-2">
+                                                <span className="text-xl font-extrabold text-orange-500">{product.price ? Number(product.price).toFixed(2) : '0.00'} €</span>
+                                            </div>
+                                            <button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg">Ajouter</button>
+                                        </div>
+                                    </div>
+                                </article>
+                            ))}
+
+                            {products.length === 0 && (
+                                <div className="col-span-full text-center text-gray-500 bg-white p-8 rounded-2xl shadow-sm">
+                                    Aucun produit n'est disponible pour le moment. L'Admin doit remplir le frigo ! 🧊
                                 </div>
-
-                            </div>
-                        ))}
-
-                        {/* Message si le catalogue est vide (mais sans erreur) */}
-                        {products.length === 0 && !loading && (
-                            <div className="col-span-full text-center text-gray-500 bg-white p-8 rounded-2xl shadow-sm">
-                                Aucun produit n'est disponible pour le moment. L'Admin doit remplir le frigo ! 🧊
-                            </div>
-                        )}
-
+                            )}
+                        </div>
                     </div>
                 )}
             </div>

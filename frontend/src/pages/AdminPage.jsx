@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import AdminUsers from './AdminUsers';
 
 const AdminPage = () => {
     // --- 1. LA MÉMOIRE ---
@@ -22,11 +23,9 @@ const AdminPage = () => {
     const [editImageUrl, setEditImageUrl] = useState('');
     const [editStock, setEditStock] = useState('');
 
-    // --- 2. LA TUYAUTERIE ---
-    // A. Charger les produits (READ)
     const loadProducts = async () => {
         try {
-            const response = await api.get('/products'); // Vérifie cette URL dans ton backend !
+            const response = await api.get('/products'); 
             setProducts(response.data);
         } catch (err) {
             console.error("Erreur de chargement:", err);
@@ -38,22 +37,25 @@ const AdminPage = () => {
         loadProducts();
     }, []);
 
-    // B. Ajouter un produit (CREATE)
+
+    const [activeTab, setActiveTab] = useState('products');
+
+
     const handleAddProduct = async (e) => {
         e.preventDefault();
         try {
             await api.post('/products', {
                 name,
                 description,
-                price: parseFloat(price), // On s'assure que c'est un nombre
+                price: parseFloat(price), 
                 stock: parseInt(stock || '0'),
                 imageUrl
             });
-            setMessage("✅ Produit ajouté avec succès !");
-            // On vide le formulaire
+            setMessage("Produit ajouté avec succès !");
+
             setName(''); setDescription(''); setPrice(''); setImageUrl('');
             setStock('');
-            // On recharge la liste pour voir le nouveau produit
+   
             loadProducts();
         } catch (err) {
             console.error("Erreur d'ajout:", err);
@@ -61,7 +63,7 @@ const AdminPage = () => {
         }
     };
 
-    // C. Supprimer un produit (DELETE)
+
     const handleDeleteProduct = async (id) => {
         if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce produit ?")) return;
         
@@ -75,7 +77,7 @@ const AdminPage = () => {
         }
     };
 
-    // D. Préparer l'édition
+
     const startEdit = (product) => {
         setEditingId(product.id);
         setEditName(product.name || '');
@@ -101,16 +103,16 @@ const AdminPage = () => {
                 stock: parseInt(editStock || '0'),
                 imageUrl: editImageUrl
             });
-            setMessage('✅ Produit mis à jour.');
+            setMessage('Produit mis à jour.');
             cancelEdit();
             loadProducts();
         } catch (err) {
             console.error('Erreur mise à jour:', err);
-            setMessage('❌ Erreur lors de la mise à jour.');
+            setMessage('Erreur lors de la mise à jour.');
         }
     };
 
-    // --- 3. LE VISUEL (DA TAILWIND ADMIN) ---
+
     return (
         <div className="min-h-screen bg-gray-50 font-sans pb-12">
             
@@ -124,6 +126,14 @@ const AdminPage = () => {
                 </div>
             </nav>
 
+            <div className="max-w-6xl mx-auto px-4">
+                <div className="flex gap-4 mb-6">
+                    <button onClick={() => setActiveTab('products')} className={`px-4 py-2 rounded ${activeTab === 'products' ? 'bg-indigo-600 text-white' : 'bg-white border'}`}>Produits</button>
+                    <button onClick={() => setActiveTab('users')} className={`px-4 py-2 rounded ${activeTab === 'users' ? 'bg-indigo-600 text-white' : 'bg-white border'}`}>Utilisateurs</button>
+                </div>
+            </div>
+
+            {activeTab === 'products' ? (
             <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 {/* COLONNE GAUCHE : Formulaire d'ajout */}
@@ -183,11 +193,11 @@ const AdminPage = () => {
                                 <button onClick={async () => {
                                     try {
                                         await api.post('/admin/promote', { email: promoteEmail });
-                                        setMessage('✅ Utilisateur promu en ADMIN.');
+                                        setMessage('Utilisateur promu en ADMIN.');
                                         setPromoteEmail('');
                                     } catch (err) {
                                         console.error('Erreur promotion:', err);
-                                        setMessage('❌ Impossible de promouvoir (vérifie les droits).');
+                                        setMessage('Impossible de promouvoir (vérifie les droits).');
                                     }
                                 }} className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-4 rounded">
                                     Promouvoir
@@ -196,7 +206,6 @@ const AdminPage = () => {
                         </div>
                     </div>
                 </div>
-
                 {/* COLONNE DROITE : Liste des produits */}
                 <div className="lg:col-span-2">
                     <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
@@ -262,6 +271,11 @@ const AdminPage = () => {
                 </div>
 
             </div>
+            ) : (
+                <div className="max-w-6xl mx-auto px-4">
+                    <AdminUsers />
+                </div>
+            )}
         </div>
     );
 };

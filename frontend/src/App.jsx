@@ -6,6 +6,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import CataloguePage from './pages/CataloguePage';
 import AdminPage from './pages/AdminPage';
+import AdminUsers from './pages/AdminUsers';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/catalog" element={<CataloguePage />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
       </Routes>
     </Layout>
     </BrowserRouter>
