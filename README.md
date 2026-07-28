@@ -78,39 +78,48 @@ Voici les prochaines étapes de développement pour finaliser l'application.
 git clone [https://github.com/ton-nom-utilisateur/click-and-collect.git](https://github.com/ton-nom-utilisateur/click-and-collect.git)
 cd click-and-collect
 =======
-# Click & Collect — Projet local
+# 🛍️ Click & Collect
 
-Prototype full‑stack : backend Spring Boot (H2) + frontend React (Vite + Tailwind).
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-F2F4F9?style=for-the-badge&logo=spring-boot)
+![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
 
-Ce README reflète l'état actuel du dépôt (auth JWT, CRUD produits, panneau admin minimal).
+Prototype full‑stack pour une application de commande et retrait en boutique. Ce dépôt contient :
+
+- un backend Java Spring Boot (API REST, sécurité JWT, H2 en mémoire pour le dev),
+- un frontend React (Vite + Tailwind) avec un panneau admin minimal pour gérer le catalogue.
+
+Ce README explique comment lancer le projet localement, quels endpoints sont disponibles et quelles améliorations sont recommandées.
 
 ---
 
-## État actuel
+## État actuel (résumé)
 
-- Backend Spring Boot avec authentification JWT.
-- Frontend React (Vite) avec pages : `Home`, `Catalogue`, `Login`, `Register`, `Admin`.
-- Frontend inclut un `AdminPage` permettant de créer/lister/éditer/supprimer des produits et de promouvoir un utilisateur (Test).
-- Base de données H2 en mémoire (développement) + console H2 active.
+- Authentification JWT avec génération et validation côté serveur.
+- Frontend avec pages : `Home`, `Catalogue`, `Login`, `Register`, `Admin`.
+- `AdminPage` permet de créer / lister / éditer / supprimer des produits et de promouvoir un utilisateur depuis l'UI.
+- Base H2 en mémoire et console H2 active pour inspection directe.
 
 ---
 
-## Démarrage (local)
+## Démarrage local
 
 1) Backend
 
-Ouvrir un terminal depuis le dossier `backend` et lancer :
+Ouvrir un terminal dans `backend` puis :
 
 ```powershell
 cd backend
 mvnw.cmd spring-boot:run
 ```
 
-L'API écoute par défaut sur `http://localhost:8080`.
+L'API écoute sur `http://localhost:8080`.
 
 2) Frontend
 
-Ouvrir un autre terminal depuis le dossier `frontend` et lancer :
+Ouvrir un autre terminal dans `frontend` puis :
 
 ```bash
 cd frontend
@@ -118,33 +127,33 @@ npm install
 npm run dev
 ```
 
-L'UI frontend (Vite) tourne souvent sur `http://localhost:5173`.
+L'interface est servie par Vite (par défaut `http://localhost:5173`).
 
 ---
 
-## Endpoints utiles (actuels)
+## Endpoints principaux
 
-- `POST /api/auth/register` — enregistrement (body: email, password, firstname, lastname)
-- `POST /api/auth/login` — authentification (body: email, password) → renvoie token JWT
-- `GET /api/products` — lister produits
-- `GET /api/products/{id}` — récupérer un produit
-- `POST /api/products` — créer produit (PROTÉGÉ `ADMIN`)
-- `PUT /api/products/{id}` — mettre à jour produit (PROTÉGÉ `ADMIN`)
-- `DELETE /api/products/{id}` — supprimer produit (PROTÉGÉ `ADMIN`)
-- `POST /api/admin/promote` — promouvoir un utilisateur (PROTÉGÉ `ADMIN`, body: {"email":"..."})
+- `POST /api/auth/register` — inscription (body: `email`, `password`, `firstname`, `lastname`)
+- `POST /api/auth/login` — connexion (body: `email`, `password`) → renvoie un token JWT
+- `GET /api/products` — liste des produits
+- `GET /api/products/{id}` — produit par id
+- `POST /api/products` — créer un produit (PROTÉGÉ `ADMIN`)
+- `PUT /api/products/{id}` — mettre à jour (PROTÉGÉ `ADMIN`)
+- `DELETE /api/products/{id}` — supprimer (PROTÉGÉ `ADMIN`)
+- `POST /api/admin/promote` — promouvoir un utilisateur (PROTÉGÉ `ADMIN`, body: `{ "email": "..." }`)
 
-Notes : le frontend envoie automatiquement l'en-tête `Authorization: Bearer <token>` en lisant `localStorage.jwt_token`.
+Le frontend utilise `frontend/src/services/api.js` : un intercepteur Axios ajoute automatiquement `Authorization: Bearer <token>` quand le token est présent dans le `localStorage`.
 
 ---
 
-## Console H2 (dev)
+## Console H2 (développement)
 
 - URL : `http://localhost:8080/h2-console`
 - JDBC URL : `jdbc:h2:mem:clickandcollectdb`
 - User : `sa`
 - Password : `password`
 
-Utiliser la console pour inspecter la table `users` et, si besoin, promouvoir un utilisateur :
+Utiles pour inspecter les tables ou pour modifier un rôle rapidement :
 
 ```sql
 UPDATE users SET role='ADMIN' WHERE email='ton.email@example.com';
@@ -152,17 +161,17 @@ UPDATE users SET role='ADMIN' WHERE email='ton.email@example.com';
 
 ---
 
-## Règles et bonnes pratiques (dev)
+## Bonnes pratiques & remarques
 
-- Ne modifie pas `pom.xml` pour l'instant (la demande initiale le strictement évitée).
-- La clé JWT est actuellement codée en dur (fichier `JwtService.java`) — OK pour dev, à externaliser en variable d'environnement pour prod.
-- Le rôle d'un utilisateur est stocké dans la colonne `role` de la table `users` (valeurs actuelles : `USER`, `ADMIN`).
+- La clé secrète JWT est actuellement définie en dur (fichier `JwtService.java`) pour faciliter le développement : il faut la remplacer par une variable d'environnement avant tout déploiement.
+- Le contrôle d'accès réel se fait côté serveur : le frontend ne fait que masquer/afficher des éléments (ex. lien Admin).
+- Ne modifie pas `pom.xml` pour l'instant si tu souhaites garder l'environnement stable.
 
 ---
 
-## Comment tester rapidement
+## Tests rapides
 
-1. S'inscrire via l'UI (`/register`) ou via curl :
+1. Inscription (UI ou curl) :
 
 ```bash
 curl -X POST http://localhost:8080/api/auth/register \
@@ -170,39 +179,46 @@ curl -X POST http://localhost:8080/api/auth/register \
 	-d '{"email":"me@example.com","password":"Pass123!","firstname":"Moi","lastname":"Test"}'
 ```
 
-2. Se connecter (`/login`) — copier le token renvoyé et le stocker dans `localStorage` sous la clé `jwt_token` (le frontend le fait automatiquement si tu utilises l'UI).
+2. Connexion :
 
-3. Aller sur `/admin` (le lien apparaît dans la navbar si le token a `role === 'ADMIN'`) et gérer les produits.
+```bash
+curl -X POST http://localhost:8080/api/auth/login \
+	-H "Content-Type: application/json" \
+	-d '{"email":"me@example.com","password":"Pass123!"}'
+```
 
-4. Si tu n'as pas d'admin, promouvoir un utilisateur via la console H2 (voir ci‑dessus) ou via l'UI Admin (formulaire Promouvoir si tu es déjà admin).
+3. Créer un produit (nécessite token ADMIN) :
+
+```bash
+curl -X POST http://localhost:8080/api/products \
+	-H "Authorization: Bearer <TOKEN>" \
+	-H "Content-Type: application/json" \
+	-d '{"name":"Burger","description":"Bon","price":9.9,"stock":10,"imageUrl":"https://..."}'
+```
 
 ---
 
-## Sujets à compléter ensuite (priorités)
+## Prochaines étapes recommandées
 
-1. Créer une page `AdminUsers` pour gérer les utilisateurs (liste, recherche, modifier rôle, supprimer) — remplace l'usage manuel de H2.
-2. Ajouter pagination & filtres côté API (`/api/products`) et côté frontend.
-3. Ajouter toasts/modals pour confirmations et retours utilisateurs.
-4. Sortir la clé JWT des sources : utiliser `application.properties` + variable d'environnement.
-5. Écrire des tests e2e simples (Cypress / Playwright) pour les flows critiques (login, CRUD produit).
+1. Page `AdminUsers` : gestion complète des utilisateurs (liste, rôle, suppression) — priorité haute.
+2. Pagination et filtres côté API et frontend pour `products`.
+3. Notifications/toasts et modals de confirmation pour les actions critiques.
+4. Externaliser la clé JWT et revoir la durée des tokens (ajouter refresh tokens si besoin).
+5. Ajouter des tests automatisés (unitaires et e2e) pour les parcours principaux.
 
 ---
 
-## Commit et sauvegarde
+## Contribution
 
-Après vérifications locales, tu peux commit tes changements :
+Tu peux committer les changements locaux puis pousser. Exemple :
 
 ```bash
 git add .
-git commit -m "feat: admin CRUD UI + JWT improvements + README"
+git commit -m "docs: mise à jour README"
 git push
 ```
 
 ---
 
-Si tu veux, je peux :
-- créer la page `AdminUsers` maintenant, ou
-- ajouter pagination API pour les produits, ou
-- générer un petit README séparé `DEVELOPMENT.md` avec les checkpoints de debug.
-Choisis et j'attaque.
+Si tu veux, je peux créer la page `AdminUsers` maintenant (frontend + petits endpoints si nécessaires). Dis‑moi et je m'en charge.
 >>>>>>> 0542727 (feat: add admin promotion endpoint and enhance JWT handling in frontend)
