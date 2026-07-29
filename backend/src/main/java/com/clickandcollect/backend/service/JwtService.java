@@ -1,20 +1,18 @@
 package com.clickandcollect.backend.service;
 
 import com.clickandcollect.backend.model.User;
-import com.clickandcollect.backend.repository.UserRepository;
 import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
-
 public class JwtService {
-    private static final String SECRET_KEY = "MaCleSecreteHyperLonguePourClickAndCollect123456789!";
+
+    @Value("${jwt.secret}")
+    private String secretKey;
 
     private java.security.Key getSignInKey(){
-        return io.jsonwebtoken.security.Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+        return io.jsonwebtoken.security.Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
     public String generateToken(User user){

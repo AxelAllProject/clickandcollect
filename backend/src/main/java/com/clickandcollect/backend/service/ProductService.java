@@ -2,6 +2,7 @@ package com.clickandcollect.backend.service;
 
 import com.clickandcollect.backend.dto.ProductRequestDTO;
 import com.clickandcollect.backend.dto.ProductResponseDTO;
+import com.clickandcollect.backend.exception.ResourceNotFoundException;
 import com.clickandcollect.backend.model.Product;
 import com.clickandcollect.backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ public class ProductService {
 
     public ProductResponseDTO getProductById(Long id){
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Le produit n'existe pas"));
+                .orElseThrow(() -> new ResourceNotFoundException("Le produit n'existe pas"));
         return mapToResponseDTO(product);
     }
 
@@ -49,7 +50,7 @@ public class ProductService {
 
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO request) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produit non trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("Produit non trouvé"));
         product.setName(request.getName());
         product.setDescription(request.getDescription());
         product.setStock(request.getStock());

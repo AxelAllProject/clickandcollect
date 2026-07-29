@@ -3,6 +3,8 @@ package com.clickandcollect.backend.service;
 import com.clickandcollect.backend.dto.LoginRequestDTO;
 import com.clickandcollect.backend.dto.RegisterRequestDTO;
 import com.clickandcollect.backend.dto.UserResponseDTO;
+import com.clickandcollect.backend.exception.EmailAlreadyUsedException;
+import com.clickandcollect.backend.exception.InvalidCredentialsException;
 import com.clickandcollect.backend.model.User;
 import com.clickandcollect.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +20,7 @@ public class AuthService {
 
     public UserResponseDTO register(RegisterRequestDTO request){
         if (userRepository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Cet email est déja utilisé");
+            throw new EmailAlreadyUsedException("Cet email est déja utilisé");
         }
         User user = new User();
         user.setEmail(request.getEmail());
@@ -44,10 +46,10 @@ public class AuthService {
 
     public UserResponseDTO login(LoginRequestDTO request){
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Identifiants incorrects"));
+                .orElseThrow(() -> new InvalidCredentialsException("Identifiants incorrects"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())){
-            throw new RuntimeException("Identifiants incorrects");
+            throw new InvalidCredentialsException("Identifiants incorrects");
         }
 
         String savedToken = jwtService.generateToken(user);

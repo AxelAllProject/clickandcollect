@@ -4,6 +4,9 @@ import com.clickandcollect.backend.dto.OrderItemRequestDTO;
 import com.clickandcollect.backend.dto.OrderItemResponseDTO;
 import com.clickandcollect.backend.dto.OrderRequestDTO;
 import com.clickandcollect.backend.dto.OrderResponseDTO;
+import com.clickandcollect.backend.exception.ForbiddenOperationException;
+import com.clickandcollect.backend.exception.InsufficientStockException;
+import com.clickandcollect.backend.exception.ResourceNotFoundException;
 import com.clickandcollect.backend.model.Order;
 import com.clickandcollect.backend.model.OrderItem;
 import com.clickandcollect.backend.model.Product;
@@ -11,7 +14,6 @@ import com.clickandcollect.backend.model.User;
 import com.clickandcollect.backend.repository.OrderItemRepository;
 import com.clickandcollect.backend.repository.OrderRepository;
 import com.clickandcollect.backend.repository.ProductRepository;
-import com.clickandcollect.backend.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,17 +27,14 @@ import java.util.List;
 
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
 
     @Transactional
-    public OrderResponseDTO createOrder(OrderRequestDTO request){
-        User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+    public OrderResponseDTO createOrder(OrderRequestDTO request, User currentUser) {
 
         Order order = new Order();
-        order.setUser(user);
+        order.setUser(currentUser);
         order.setStatus("PENDING");
         order.setCreatedAt(LocalDateTime.now());
 
@@ -43,12 +42,12 @@ public class OrderService {
 
         List<OrderItemResponseDTO> responseItems = new ArrayList<>();
 
-        for (OrderItemRequestDTO itemDto : request.getItems()){
+        for (OrderItemRequestDTO itemDto : request.getItems()) {
             Product product = productRepository.findById(itemDto.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Produit non trouvé"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Produit non trouvé"));
 
             if (product.getStock() < itemDto.getQuantity()) {
-                throw new RuntimeException("Stock insuffisant pour le produit : " + product.getName());
+                throw new InsufficientStockException("Stock insuffisant pour le produit : " + product.getName());
             }
 
             product.setStock(product.getStock() - itemDto.getQuantity());
@@ -74,7 +73,7 @@ public class OrderService {
 
         OrderResponseDTO finalResponse = new OrderResponseDTO(
                 savedOrder.getId(),
-                user.getId(),
+                currentUser.getId(),
                 savedOrder.getStatus(),
                 savedOrder.getCreatedAt(),
                 responseItems
@@ -82,9 +81,9 @@ public class OrderService {
         return finalResponse;
     }
 
-    public OrderResponseDTO updateOrderStatus(Long orderId, String newStatus){
+    public OrderResponseDTO updateOrderStatus(Long orderId, String newStatus) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("La commande n'a pas été trouvé"));
+                .orElseThrow(() -> new ResourceNotFoundException("La commande n'a pas été trouvé"));
         order.setStatus(newStatus);
 
         Order savedOrder = orderRepository.save(order);
@@ -115,4 +114,29 @@ public class OrderService {
         );
     }
 
+    public List<OrderResponseDTO> getOrdersForUser(User currentUser) {
+        List<Order> orders = orderRepository.findByUserId(currentUser.getId());
+
+        List<OrderResponseDTO> responseDTOList = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderResponseDTO dto = mapToOrderResponseDTO(order);
+            responseDTOList.add(dto);
+        }
+        return responseDTOList;
+    }
+
+    public OrderResponseDTO getOrderById(Long id, User currentUser) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Commande non trouvée"));
+
+        boolean isOwner = order.getUser().getId().equals(currentUser.getId());
+        boolean isAdmin = currentUser.getRole().equals("ADMIN");
+
+        if (!isOwner && !isAdmin) {
+            throw new ForbiddenOperationException("Vous ne pouvez pas accéder à la commande");
+        }
+        return mapToOrderResponseDTO(order);
+
+    }
 }
