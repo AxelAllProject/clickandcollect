@@ -1,23 +1,21 @@
 package com.clickandcollect.backend.dto;
 
+import com.clickandcollect.backend.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 
-public class OrderResponseDTO {
+public class CartResponseDTO {
     private Long id;
     private Long userId;
-    private String customerEmail;
-    private String status;
-    private LocalDateTime createdAt;
-    private List<OrderItemResponseDTO> items;
+    private List<CartItemResponseDTO> items;
+    private BigDecimal total;
 
 }

@@ -1,16 +1,18 @@
 package com.clickandcollect.backend.service;
 
-import com.clickandcollect.backend.dto.OrderItemRequestDTO;
 import com.clickandcollect.backend.dto.OrderItemResponseDTO;
-import com.clickandcollect.backend.dto.OrderRequestDTO;
 import com.clickandcollect.backend.dto.OrderResponseDTO;
 import com.clickandcollect.backend.exception.ForbiddenOperationException;
 import com.clickandcollect.backend.exception.InsufficientStockException;
 import com.clickandcollect.backend.exception.ResourceNotFoundException;
+import com.clickandcollect.backend.model.Cart;
+import com.clickandcollect.backend.model.CartItem;
 import com.clickandcollect.backend.model.Order;
 import com.clickandcollect.backend.model.OrderItem;
 import com.clickandcollect.backend.model.Product;
 import com.clickandcollect.backend.model.User;
+import com.clickandcollect.backend.repository.CartItemRepository;
+import com.clickandcollect.backend.repository.CartRepository;
 import com.clickandcollect.backend.repository.OrderItemRepository;
 import com.clickandcollect.backend.repository.OrderRepository;
 import com.clickandcollect.backend.repository.ProductRepository;
@@ -29,9 +31,19 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
 
     @Transactional
-    public OrderResponseDTO createOrder(OrderRequestDTO request, User currentUser) {
+    public OrderResponseDTO checkout(User currentUser) {
+
+        Cart cart = cartRepository.findByUserId(currentUser.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Panier introuvable"));
+
+        List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+        if (cartItems.isEmpty()) {
+            throw new IllegalStateException("Le panier est vide");
+        }
 
         Order order = new Order();
         order.setUser(currentUser);
@@ -42,21 +54,20 @@ public class OrderService {
 
         List<OrderItemResponseDTO> responseItems = new ArrayList<>();
 
-        for (OrderItemRequestDTO itemDto : request.getItems()) {
-            Product product = productRepository.findById(itemDto.getProductId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Produit non trouvé"));
+        for (CartItem cartItem : cartItems) {
+            Product product = cartItem.getProduct();
 
-            if (product.getStock() < itemDto.getQuantity()) {
+            if (product.getStock() < cartItem.getQuantity()) {
                 throw new InsufficientStockException("Stock insuffisant pour le produit : " + product.getName());
             }
 
-            product.setStock(product.getStock() - itemDto.getQuantity());
+            product.setStock(product.getStock() - cartItem.getQuantity());
             productRepository.save(product);
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(savedOrder);
             orderItem.setProduct(product);
-            orderItem.setQuantity(itemDto.getQuantity());
+            orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setPrice(product.getPrice());
 
             OrderItem savedItem = orderItemRepository.save(orderItem);
@@ -64,21 +75,24 @@ public class OrderService {
             OrderItemResponseDTO itemResponse = new OrderItemResponseDTO(
                     savedItem.getId(),
                     product.getId(),
+                    product.getName(),
+                    product.getImageUrl(),
                     savedItem.getQuantity(),
                     savedItem.getPrice()
             );
             responseItems.add(itemResponse);
-
         }
 
-        OrderResponseDTO finalResponse = new OrderResponseDTO(
+        cartItemRepository.deleteAll(cartItems);
+
+        return new OrderResponseDTO(
                 savedOrder.getId(),
                 currentUser.getId(),
+                currentUser.getEmail(),
                 savedOrder.getStatus(),
                 savedOrder.getCreatedAt(),
                 responseItems
         );
-        return finalResponse;
     }
 
     public OrderResponseDTO updateOrderStatus(Long orderId, String newStatus) {
@@ -100,6 +114,8 @@ public class OrderService {
             itemDTOs.add(new OrderItemResponseDTO(
                     item.getId(),
                     item.getProduct().getId(),
+                    item.getProduct().getName(),
+                    item.getProduct().getImageUrl(),
                     item.getQuantity(),
                     item.getPrice()
             ));
@@ -108,6 +124,7 @@ public class OrderService {
         return new OrderResponseDTO(
                 order.getId(),
                 order.getUser().getId(),
+                order.getUser().getEmail(),
                 order.getStatus(),
                 order.getCreatedAt(),
                 itemDTOs
@@ -138,5 +155,18 @@ public class OrderService {
         }
         return mapToOrderResponseDTO(order);
 
+    }
+
+    public List<OrderResponseDTO> getAllOrders(){
+
+        List<Order> orders = orderRepository.findAll();
+
+        List<OrderResponseDTO> responseList = new ArrayList<>();
+
+        for (Order order : orders) {
+            OrderResponseDTO dto = mapToOrderResponseDTO(order);
+            responseList.add(dto);
+        }
+        return responseList;
     }
 }

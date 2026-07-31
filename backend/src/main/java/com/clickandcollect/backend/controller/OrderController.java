@@ -1,10 +1,8 @@
 package com.clickandcollect.backend.controller;
 
-import com.clickandcollect.backend.dto.OrderRequestDTO;
 import com.clickandcollect.backend.dto.OrderResponseDTO;
 import com.clickandcollect.backend.model.User;
 import com.clickandcollect.backend.service.OrderService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,9 +18,9 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
 
-    @PostMapping
-    public OrderResponseDTO createOrder(@Valid @RequestBody OrderRequestDTO request, @AuthenticationPrincipal User currentUser){
-        return orderService.createOrder(request, currentUser);
+    @PostMapping("/checkout")
+    public OrderResponseDTO checkout(@AuthenticationPrincipal User currentUser){
+        return orderService.checkout(currentUser);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -39,6 +37,12 @@ public class OrderController {
     @GetMapping("/{id}")
     public OrderResponseDTO getOrderById(@PathVariable Long id, @AuthenticationPrincipal User currentUser){
         return orderService.getOrderById(id, currentUser);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/all")
+    public List<OrderResponseDTO> getAllOrders(){
+        return orderService.getAllOrders();
     }
 
 }
