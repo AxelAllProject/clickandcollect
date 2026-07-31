@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, ShoppingCart, LayoutDashboard, ClipboardList, LogOut } from 'lucide-react';
+import { ShoppingBag, ShoppingCart, LayoutDashboard, ClipboardList, UserCircle, Settings2, LogOut } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 
 const decodeToken = (token) => {
@@ -83,6 +83,14 @@ const Navbar = () => {
                                         <Link to="/orders" onClick={() => setIsOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50">
                                             <ClipboardList size={16} className="text-slate-400" />
                                             Mes commandes
+                                        </Link>
+                                        <Link to="/profile" onClick={() => setIsOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                                            <UserCircle size={16} className="text-slate-400" />
+                                            Mon profil
+                                        </Link>
+                                        <Link to="/settings" onClick={() => setIsOpen(false)} className="flex items-center gap-2.5 px-3.5 py-2 text-sm text-slate-700 hover:bg-slate-50">
+                                            <Settings2 size={16} className="text-slate-400" />
+                                            Paramètres
                                         </Link>
                                         <button
                                             onClick={handleLogout}

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { ClipboardList, UtensilsCrossed } from 'lucide-react';
+import { ClipboardList, UtensilsCrossed, MapPin, Clock } from 'lucide-react';
 import api from '../services/api';
 import StatusBadge, { STATUS_OPTIONS } from '../components/ui/StatusBadge';
+import PaymentStatusBadge from '../components/ui/PaymentStatusBadge';
+
+const formatSlotDate = (isoDate) =>
+    new Date(`${isoDate}T00:00:00`).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
 
 const orderTotal = (order) =>
     (order.items || []).reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -77,6 +81,7 @@ const AdminOrders = () => {
                                 </div>
 
                                 <div className="flex items-center gap-2">
+                                    <PaymentStatusBadge status={order.paymentStatus} />
                                     <StatusBadge status={order.status} />
                                     <select
                                         value={order.status}
@@ -90,6 +95,19 @@ const AdminOrders = () => {
                                     </select>
                                 </div>
                             </div>
+
+                            {order.pickupSlot && (
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500 bg-slate-50 border border-slate-100 rounded-lg px-3.5 py-2 mb-3">
+                                    <span className="flex items-center gap-1.5">
+                                        <MapPin size={13} className="text-orange-600" />
+                                        {order.pickupSlot.locationName} · {order.pickupSlot.locationCity}
+                                    </span>
+                                    <span className="flex items-center gap-1.5">
+                                        <Clock size={13} className="text-orange-600" />
+                                        {formatSlotDate(order.pickupSlot.date)} · {order.pickupSlot.startTime.slice(0, 5)}–{order.pickupSlot.endTime.slice(0, 5)}
+                                    </span>
+                                </div>
+                            )}
 
                             <div className="flex flex-col gap-1.5 border-t border-slate-100 pt-3">
                                 {(order.items || []).map((item) => (

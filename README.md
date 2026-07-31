@@ -1,40 +1,114 @@
 # Click & Collect
-## Fonctionnalités actuelles
+
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-F2F4F9?style=for-the-badge&logo=spring-boot)
 ![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Stripe](https://img.shields.io/badge/Stripe-635BFF?style=for-the-badge&logo=stripe&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-black?style=for-the-badge&logo=JSON%20web%20tokens)
 
-Une application de commande en ligne et retrait en magasin (click & collect).
+Application de commande en ligne avec retrait en point relais (click & collect) : catalogue de produits, panier, réservation d'un créneau de retrait, paiement en ligne, suivi de commande et back-office admin.
 
 ---
 
-## État actuel (résumé)
+## Sommaire
 
-- Authentification JWT avec génération et validation côté serveur.
-- Frontend avec pages : `Home`, `Catalogue`, `Login`, `Register`, `Admin`.
-- `AdminPage` permet de créer / lister / éditer / supprimer des produits et de promouvoir un utilisateur depuis l'UI.
-- Base H2 en mémoire et console H2 active pour inspection directe.
+- [Fonctionnalités](#fonctionnalités)
+- [Stack technique](#stack-technique)
+- [Démarrage rapide avec Docker](#démarrage-rapide-avec-docker)
+- [Démarrage en local sans Docker](#démarrage-en-local-sans-docker)
+- [Variables d'environnement](#variables-denvironnement)
+- [Comptes de test](#comptes-de-test)
+- [Paiement Stripe en local](#paiement-stripe-en-local)
+- [Endpoints principaux](#endpoints-principaux)
+- [Structure du projet](#structure-du-projet)
+- [Prochaines étapes](#prochaines-étapes)
 
 ---
 
-## Démarrage local
+## Fonctionnalités
 
-1) Backend
+**Côté client**
+- Authentification (inscription / connexion) par JWT
+- Catalogue de produits avec recherche, tri et gestion du stock
+- Panier persistant (ajout, modification de quantité, suppression)
+- Choix d'un point relais et d'un créneau de retrait avec gestion de capacité (plus de réservations que de places disponibles)
+- Paiement en ligne sécurisé via Stripe (Payment Element)
+- Suivi des commandes (statut de préparation + statut de paiement)
+- Profil utilisateur (informations personnelles, changement de mot de passe)
+- Paramètres (point relais favori, présélectionné automatiquement au paiement)
 
-Ouvrir un terminal dans `backend` puis :
+**Côté admin**
+- Tableau de bord (aperçu des commandes par statut)
+- Gestion des produits (créer / éditer / supprimer)
+- Gestion des utilisateurs (liste, rôle, suppression, promotion en admin)
+- Gestion des commandes (changement de statut)
+- Gestion des créneaux de retrait (créer / supprimer)
 
-```powershell
-cd backend
-mvnw.cmd spring-boot:run
+---
+
+## Stack technique
+
+| Composant | Technologie |
+|---|---|
+| Backend | Spring Boot 4, Spring Security (JWT), Spring Data JPA |
+| Base de données | PostgreSQL |
+| Paiement | Stripe (Payment Intents + webhooks) |
+| Frontend | React 19, React Router, Tailwind CSS 4, Axios |
+| Conteneurisation | Docker, Docker Compose |
+
+---
+
+## Démarrage rapide avec Docker
+
+C'est la façon la plus simple de lancer toute la stack (base de données incluse).
+
+1. Copier le fichier d'exemple et renseigner tes propres valeurs :
+
+```bash
+cp .env.example .env
 ```
 
-L'API écoute sur `http://localhost:8080`.
+2. Lancer la stack :
 
-2) Frontend
+```bash
+docker compose up --build
+```
 
-Ouvrir un autre terminal dans `frontend` puis :
+- Frontend : http://localhost:5173
+- Backend : http://localhost:8080
+- PostgreSQL : localhost:5432
+
+Les données (utilisateurs, produits, commandes...) sont stockées dans un volume Docker et survivent aux redémarrages. Pour tout arrêter en gardant les données :
+
+```bash
+docker compose down
+```
+
+Pour tout arrêter et supprimer aussi la base de données :
+
+```bash
+docker compose down -v
+```
+
+---
+
+## Démarrage en local sans Docker
+
+Nécessite une instance PostgreSQL accessible en local (par exemple via `docker compose up db`).
+
+**Backend**
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
+
+Par défaut, le backend se connecte à `jdbc:postgresql://localhost:5432/clickandcollect` (voir [Variables d'environnement](#variables-denvironnement) pour personnaliser). L'API écoute sur `http://localhost:8080`.
+
+**Frontend**
 
 ```bash
 cd frontend
@@ -42,85 +116,134 @@ npm install
 npm run dev
 ```
 
-L'interface est servie par Vite (par défaut `http://localhost:5173`).
+L'interface est servie par Vite sur `http://localhost:5173`.
+
+---
+
+## Variables d'environnement
+
+Toutes les valeurs sensibles se configurent via variables d'environnement (voir `.env.example`). En local sans Docker, des valeurs par défaut de développement sont utilisées si rien n'est défini.
+
+| Variable | Rôle | Défaut (dev) |
+|---|---|---|
+| `DB_URL` | URL JDBC PostgreSQL | `jdbc:postgresql://localhost:5432/clickandcollect` |
+| `DB_USERNAME` | Utilisateur PostgreSQL | `postgres` |
+| `DB_PASSWORD` | Mot de passe PostgreSQL | `postgres` |
+| `JWT_SECRET` | Clé de signature des tokens JWT | valeur de dev fournie |
+| `STRIPE_SECRET_KEY` | Clé secrète Stripe (mode test) | — |
+| `STRIPE_PUBLISHABLE_KEY` | Clé publique Stripe (mode test) | — |
+| `STRIPE_WEBHOOK_SECRET` | Secret de vérification des webhooks Stripe | — |
+
+Les clés Stripe se récupèrent sur https://dashboard.stripe.com/test/apikeys.
+
+---
+
+## Comptes de test
+
+Un jeu de données de démonstration est inséré automatiquement au premier démarrage (produits, points relais, créneaux, comptes) :
+
+| Rôle | Email | Mot de passe |
+|---|---|---|
+| Admin | `admin@clickandcollect.fr` | `AdminTest1234!` |
+| Utilisateur | `client.test@clickandcollect.fr` | `ClientTest1234!` |
+
+Le catalogue de démo (6 produits) et 6 points relais en Hauts-de-France (avec leurs créneaux) sont créés en même temps.
+
+---
+
+## Paiement Stripe en local
+
+Le paiement passe par un webhook Stripe pour confirmer qu'une commande est bien payée. En local, Stripe ne peut pas atteindre directement `localhost` : il faut utiliser le [Stripe CLI](https://docs.stripe.com/stripe-cli) pour relayer les événements.
+
+1. Se connecter :
+
+```bash
+stripe login
+```
+
+2. Relayer les webhooks vers le backend (à laisser tourner pendant les tests) :
+
+```bash
+stripe listen --forward-to localhost:8080/api/payments/webhook
+```
+
+3. Copier le secret affiché (`whsec_...`) dans `STRIPE_WEBHOOK_SECRET`. **Ce secret change à chaque redémarrage de la commande.**
+
+4. Cartes de test utiles :
+
+| Scénario | Numéro de carte |
+|---|---|
+| Paiement réussi | `4242 4242 4242 4242` |
+| Carte refusée | `4000 0000 0000 0002` |
+| Fonds insuffisants | `4000 0000 0000 9995` |
+
+Date d'expiration future et CVC quelconques.
 
 ---
 
 ## Endpoints principaux
 
-- `POST /api/auth/register` — inscription (body: `email`, `password`, `firstname`, `lastname`)
-- `POST /api/auth/login` — connexion (body: `email`, `password`) → renvoie un token JWT
+**Authentification**
+- `POST /api/auth/register` — inscription
+- `POST /api/auth/login` — connexion, renvoie un JWT
+
+**Produits**
 - `GET /api/products` — liste des produits
-- `GET /api/products/{id}` — produit par id
-- `POST /api/products` — créer un produit (PROTÉGÉ `ADMIN`)
-- `PUT /api/products/{id}` — mettre à jour (PROTÉGÉ `ADMIN`)
-- `DELETE /api/products/{id}` — supprimer (PROTÉGÉ `ADMIN`)
-- `POST /api/admin/promote` — promouvoir un utilisateur (PROTÉGÉ `ADMIN`, body: `{ "email": "..." }`)
+- `POST /api/products` / `PUT /api/products/{id}` / `DELETE /api/products/{id}` — gestion (ADMIN)
 
-Le frontend utilise `frontend/src/services/api.js` : un intercepteur Axios ajoute automatiquement `Authorization: Bearer <token>` quand le token est présent dans le `localStorage`.
+**Panier**
+- `GET /api/cart` — panier courant
+- `POST /api/cart/items` / `PUT /api/cart/items/{id}` / `DELETE /api/cart/items/{id}` — gestion des lignes
+
+**Points relais et créneaux**
+- `GET /api/pickup-locations` — liste des points relais
+- `GET /api/pickup-slots?locationId=` — créneaux disponibles
+- `POST /api/pickup-slots` / `DELETE /api/pickup-slots/{id}` — gestion des créneaux (ADMIN)
+
+**Commandes et paiement**
+- `POST /api/orders/checkout` — valide le panier sur un créneau, crée le paiement Stripe
+- `GET /api/orders` — commandes de l'utilisateur connecté
+- `GET /api/orders/all` — toutes les commandes (ADMIN)
+- `PUT /api/orders/{id}/status` — changer le statut d'une commande (ADMIN)
+- `POST /api/payments/webhook` — confirmation de paiement (appelé par Stripe)
+
+**Profil**
+- `GET/PUT /api/profile` — informations personnelles
+- `PUT /api/profile/password` — changement de mot de passe
+- `PUT /api/profile/settings` — point relais favori
+
+**Administration**
+- `GET /api/admin/users` — liste des utilisateurs
+- `PUT /api/admin/users/{id}/role` / `DELETE /api/admin/users/{id}` — gestion des rôles/suppression
+- `POST /api/admin/promote` — promouvoir un utilisateur en admin
+
+Le frontend utilise `frontend/src/services/api.js` : un intercepteur Axios ajoute automatiquement `Authorization: Bearer <token>` quand un token est présent dans le `localStorage`.
 
 ---
 
-## Console H2 (développement)
+## Structure du projet
 
-- URL : `http://localhost:8080/h2-console`
-- JDBC URL : `jdbc:h2:mem:clickandcollectdb`
-- User : `sa`
-- Password : `password`
-
-Utiles pour inspecter les tables ou pour modifier un rôle rapidement :
-
-```sql
-UPDATE users SET role='ADMIN' WHERE email='ton.email@example.com';
+```
+clickandcollect/
+├── backend/                # API Spring Boot
+│   ├── src/main/java/...   # controllers, services, repositories, entités, DTOs
+│   └── Dockerfile
+├── frontend/                # SPA React
+│   ├── src/
+│   │   ├── pages/           # une page par route
+│   │   ├── components/      # composants UI et layout réutilisables
+│   │   ├── context/          # panier, notifications
+│   │   └── services/api.js   # client HTTP
+│   └── Dockerfile
+├── docker-compose.yml       # backend + frontend + PostgreSQL
+└── .env.example
 ```
 
 ---
 
-## Bonnes pratiques & remarques
+## Prochaines étapes
 
-- La clé secrète JWT est actuellement définie en dur (fichier `JwtService.java`) pour faciliter le développement.
-- Le contrôle d'accès réel se fait côté serveur : le frontend ne fait que masquer/afficher des éléments (ex. lien Admin).
-- Ne modifie pas `pom.xml` pour l'instant si tu souhaites garder l'environnement stable.
-
----
-
-## Tests rapides
-
-1. Inscription :
-
-```bash
-curl -X POST http://localhost:8080/api/auth/register \
-	-H "Content-Type: application/json" \
-	-d '{"email":"me@example.com","password":"Pass123!","firstname":"Moi","lastname":"Test"}'
-```
-
-2. Connexion :
-
-```bash
-curl -X POST http://localhost:8080/api/auth/login \
-	-H "Content-Type: application/json" \
-	-d '{"email":"me@example.com","password":"Pass123!"}'
-```
-
-3. Créer un produit :
-
-```bash
-curl -X POST http://localhost:8080/api/products \
-	-H "Authorization: Bearer <TOKEN>" \
-	-H "Content-Type: application/json" \
-	-d '{"name":"Burger","description":"Bon","price":9.9,"stock":10,"imageUrl":"https://..."}'
-```
-
----
-
-## Prochaines étapes 
-
-1. Page `AdminUsers` : gestion complète des utilisateurs (liste, rôle, suppression) — priorité haute.
-2. Pagination et filtres côté API et frontend pour `products`.
-3. Notifications/toasts et modals de confirmation pour les actions critiques.
-4. Externaliser la clé JWT et revoir la durée des tokens (ajouter refresh tokens si besoin).
-5. Ajouter des tests automatisés (unitaires et e2e) pour les parcours principaux.
-
----
-
-
+- Couverture de tests automatisés (JUnit, tests d'intégration avec Testcontainers)
+- Gestion admin des points relais eux-mêmes (actuellement fixes)
+- Migrations de schéma versionnées (Flyway/Liquibase) plutôt que `ddl-auto=update`
+- Pagination sur les listes de produits/commandes

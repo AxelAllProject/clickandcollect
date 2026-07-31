@@ -11,36 +11,34 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "pickup_slots")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Order {
+public class PickupSlot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "location_id", nullable = false)
+    private PickupLocation location;
+
     @Column(nullable = false)
-    private String status;
+    private LocalDate date;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "start_time", nullable = false)
+    private LocalTime startTime;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @Column(name = "end_time", nullable = false)
+    private LocalTime endTime;
 
-    @ManyToOne
-    @JoinColumn(name = "pickup_slot_id", nullable = false)
-    private PickupSlot pickupSlot;
-
-    @Column(name = "payment_status", nullable = false)
-    private String paymentStatus;
-
-    @Column(name = "stripe_payment_intent_id")
-    private String stripePaymentIntentId;
+    @Column(nullable = false)
+    private int capacity;
 }

@@ -1,25 +1,34 @@
 package com.clickandcollect.backend.service;
 
+import com.clickandcollect.backend.dto.CheckoutRequestDTO;
+import com.clickandcollect.backend.dto.CheckoutResponseDTO;
 import com.clickandcollect.backend.dto.OrderItemResponseDTO;
 import com.clickandcollect.backend.dto.OrderResponseDTO;
+import com.clickandcollect.backend.dto.PickupSlotResponseDTO;
 import com.clickandcollect.backend.exception.ForbiddenOperationException;
 import com.clickandcollect.backend.exception.InsufficientStockException;
 import com.clickandcollect.backend.exception.ResourceNotFoundException;
+import com.clickandcollect.backend.exception.SlotFullException;
 import com.clickandcollect.backend.model.Cart;
 import com.clickandcollect.backend.model.CartItem;
 import com.clickandcollect.backend.model.Order;
 import com.clickandcollect.backend.model.OrderItem;
+import com.clickandcollect.backend.model.PickupSlot;
 import com.clickandcollect.backend.model.Product;
 import com.clickandcollect.backend.model.User;
 import com.clickandcollect.backend.repository.CartItemRepository;
 import com.clickandcollect.backend.repository.CartRepository;
 import com.clickandcollect.backend.repository.OrderItemRepository;
 import com.clickandcollect.backend.repository.OrderRepository;
+import com.clickandcollect.backend.repository.PickupSlotRepository;
 import com.clickandcollect.backend.repository.ProductRepository;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +42,11 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final PickupSlotRepository pickupSlotRepository;
+    private final StripeService stripeService;
 
     @Transactional
-    public OrderResponseDTO checkout(User currentUser) {
+    public CheckoutResponseDTO checkout(User currentUser, CheckoutRequestDTO request) {
 
         Cart cart = cartRepository.findByUserId(currentUser.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Panier introuvable"));
@@ -45,14 +56,25 @@ public class OrderService {
             throw new IllegalStateException("Le panier est vide");
         }
 
+        PickupSlot slot = pickupSlotRepository.findById(request.getPickupSlotId())
+                .orElseThrow(() -> new ResourceNotFoundException("Créneau introuvable"));
+
+        long booked = orderRepository.countByPickupSlotIdAndPaymentStatusNot(slot.getId(), "FAILED");
+        if (booked >= slot.getCapacity()) {
+            throw new SlotFullException("Ce créneau est complet, choisis-en un autre.");
+        }
+
         Order order = new Order();
         order.setUser(currentUser);
         order.setStatus("PENDING");
+        order.setPaymentStatus("AWAITING_PAYMENT");
+        order.setPickupSlot(slot);
         order.setCreatedAt(LocalDateTime.now());
 
         Order savedOrder = orderRepository.save(order);
 
         List<OrderItemResponseDTO> responseItems = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
 
         for (CartItem cartItem : cartItems) {
             Product product = cartItem.getProduct();
@@ -71,6 +93,7 @@ public class OrderService {
             orderItem.setPrice(product.getPrice());
 
             OrderItem savedItem = orderItemRepository.save(orderItem);
+            total = total.add(product.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
 
             OrderItemResponseDTO itemResponse = new OrderItemResponseDTO(
                     savedItem.getId(),
@@ -85,14 +108,53 @@ public class OrderService {
 
         cartItemRepository.deleteAll(cartItems);
 
-        return new OrderResponseDTO(
+        PaymentIntent paymentIntent;
+        try {
+            paymentIntent = stripeService.createPaymentIntent(total, savedOrder.getId());
+        } catch (StripeException e) {
+            throw new IllegalStateException("Impossible de créer le paiement : " + e.getMessage());
+        }
+
+        savedOrder.setStripePaymentIntentId(paymentIntent.getId());
+        orderRepository.save(savedOrder);
+
+        OrderResponseDTO orderDTO = new OrderResponseDTO(
                 savedOrder.getId(),
                 currentUser.getId(),
                 currentUser.getEmail(),
                 savedOrder.getStatus(),
+                savedOrder.getPaymentStatus(),
                 savedOrder.getCreatedAt(),
-                responseItems
+                responseItems,
+                mapSlotToDTO(slot)
         );
+
+        return new CheckoutResponseDTO(orderDTO, paymentIntent.getClientSecret(), stripeService.getPublishableKey());
+    }
+
+    @Transactional
+    public void markOrderPaid(String paymentIntentId) {
+        orderRepository.findByStripePaymentIntentId(paymentIntentId)
+                .ifPresent(order -> {
+                    order.setPaymentStatus("PAID");
+                    orderRepository.save(order);
+                });
+    }
+
+    @Transactional
+    public void markOrderFailed(String paymentIntentId) {
+        orderRepository.findByStripePaymentIntentId(paymentIntentId)
+                .ifPresent(order -> {
+                    order.setPaymentStatus("FAILED");
+                    orderRepository.save(order);
+
+                    List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
+                    for (OrderItem item : items) {
+                        Product product = item.getProduct();
+                        product.setStock(product.getStock() + item.getQuantity());
+                        productRepository.save(product);
+                    }
+                });
     }
 
     public OrderResponseDTO updateOrderStatus(Long orderId, String newStatus) {
@@ -126,8 +188,27 @@ public class OrderService {
                 order.getUser().getId(),
                 order.getUser().getEmail(),
                 order.getStatus(),
+                order.getPaymentStatus(),
                 order.getCreatedAt(),
-                itemDTOs
+                itemDTOs,
+                mapSlotToDTO(order.getPickupSlot())
+        );
+    }
+
+    private PickupSlotResponseDTO mapSlotToDTO(PickupSlot slot) {
+        long booked = orderRepository.countByPickupSlotIdAndPaymentStatusNot(slot.getId(), "FAILED");
+        int remaining = (int) Math.max(0, slot.getCapacity() - booked);
+
+        return new PickupSlotResponseDTO(
+                slot.getId(),
+                slot.getLocation().getId(),
+                slot.getLocation().getName(),
+                slot.getLocation().getCity(),
+                slot.getDate(),
+                slot.getStartTime(),
+                slot.getEndTime(),
+                slot.getCapacity(),
+                remaining
         );
     }
 

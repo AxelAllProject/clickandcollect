@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Minus, Plus, X, ShoppingCart, UtensilsCrossed, AlertCircle } from 'lucide-react';
-import api from '../services/api';
 import { useCart } from '../context/CartContext';
-import { useToast } from '../context/ToastContext';
 import Button from '../components/ui/Button';
 
 const CartPage = () => {
-    const { cart, loading, updateItem, removeItem, clearCart, refreshCart } = useCart();
-    const { showToast } = useToast();
+    const { cart, loading, updateItem, removeItem, clearCart } = useCart();
     const [busyItemId, setBusyItemId] = useState(null);
-    const [checkingOut, setCheckingOut] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -52,24 +48,6 @@ const CartPage = () => {
         } catch (err) {
             console.error('Erreur vidage panier:', err);
             setError("Impossible de vider le panier.");
-        }
-    };
-
-    const handleCheckout = async () => {
-        setCheckingOut(true);
-        setError('');
-        try {
-            await api.post('/orders/checkout');
-            await refreshCart();
-            showToast('Commande validée avec succès', 'success');
-            navigate('/orders');
-        } catch (err) {
-            console.error('Erreur checkout:', err);
-            const msg = err.response?.data?.message || "Impossible de valider la commande.";
-            setError(msg);
-            showToast(msg, 'error');
-        } finally {
-            setCheckingOut(false);
         }
     };
 
@@ -169,8 +147,8 @@ const CartPage = () => {
                                     <span>Total</span>
                                     <span className="text-orange-600">{Number(cart.total).toFixed(2)} €</span>
                                 </div>
-                                <Button size="lg" onClick={handleCheckout} disabled={checkingOut} className="w-full mt-6">
-                                    {checkingOut ? 'Validation...' : 'Passer la commande'}
+                                <Button size="lg" onClick={() => navigate('/checkout')} className="w-full mt-6">
+                                    Choisir un créneau &amp; payer
                                 </Button>
                             </div>
                         </div>

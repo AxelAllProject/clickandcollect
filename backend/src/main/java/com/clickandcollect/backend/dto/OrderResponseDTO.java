@@ -17,7 +17,9 @@ public class OrderResponseDTO {
     private Long userId;
     private String customerEmail;
     private String status;
+    private String paymentStatus;
     private LocalDateTime createdAt;
     private List<OrderItemResponseDTO> items;
+    private PickupSlotResponseDTO pickupSlot;
 
 }

@@ -1,8 +1,11 @@
 package com.clickandcollect.backend.controller;
 
+import com.clickandcollect.backend.dto.CheckoutRequestDTO;
+import com.clickandcollect.backend.dto.CheckoutResponseDTO;
 import com.clickandcollect.backend.dto.OrderResponseDTO;
 import com.clickandcollect.backend.model.User;
 import com.clickandcollect.backend.service.OrderService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,8 +22,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping("/checkout")
-    public OrderResponseDTO checkout(@AuthenticationPrincipal User currentUser){
-        return orderService.checkout(currentUser);
+    public CheckoutResponseDTO checkout(@Valid @RequestBody CheckoutRequestDTO request, @AuthenticationPrincipal User currentUser){
+        return orderService.checkout(currentUser, request);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

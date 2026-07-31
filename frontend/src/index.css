@@ -1,13 +1,65 @@
 @import "tailwindcss";
 
+/*
+ * Palette "marché artisanal" : on redéfinit les rampes de couleurs Tailwind
+ * existantes (orange/slate/indigo) plutôt que d'en inventer de nouvelles.
+ * Comme toutes les pages utilisent déjà bg-orange-600, text-slate-500,
+ * ring-indigo-500 etc., ce seul bloc reskin toute l'appli sans devoir
+ * toucher chaque composant.
+ */
+@theme {
+    /* orange -> terracotta (accent principal, boutons, prix) */
+    --color-orange-50: #FBF1EA;
+    --color-orange-100: #F6E1D2;
+    --color-orange-200: #EBC3A6;
+    --color-orange-300: #DEA079;
+    --color-orange-400: #D17D52;
+    --color-orange-500: #C0602F;
+    --color-orange-600: #A84E23;
+    --color-orange-700: #8A3E1C;
+    --color-orange-800: #6C3117;
+    --color-orange-900: #522511;
+    --color-orange-950: #2E1409;
+
+    /* slate -> pierre chaude (tous les neutres : fonds, textes, bordures) */
+    --color-slate-50: #FAF7F2;
+    --color-slate-100: #F1EAE0;
+    --color-slate-200: #E4D9C9;
+    --color-slate-300: #CFC0AA;
+    --color-slate-400: #A79680;
+    --color-slate-500: #8A7A66;
+    --color-slate-600: #6B5D4D;
+    --color-slate-700: #52463A;
+    --color-slate-800: #3A312A;
+    --color-slate-900: #241E19;
+    --color-slate-950: #16120F;
+
+    /* indigo -> olive (accent réservé à l'espace admin) */
+    --color-indigo-50: #F4F6EC;
+    --color-indigo-100: #E6EAD3;
+    --color-indigo-200: #CDD6A8;
+    --color-indigo-300: #AEBD7D;
+    --color-indigo-400: #8FA357;
+    --color-indigo-500: #71863D;
+    --color-indigo-600: #5C6E31;
+    --color-indigo-700: #495728;
+    --color-indigo-800: #3A451F;
+    --color-indigo-900: #2C3518;
+    --color-indigo-950: #1A1F0E;
+
+    --font-display: "Fraunces", "Inter", ui-serif, serif;
+}
+
 body {
     font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
+    background-color: var(--color-slate-50);
 }
 
 .font-display,
 h1, h2, h3 {
-    font-family: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
+    font-family: var(--font-display);
+    font-weight: 600;
     letter-spacing: -0.01em;
 }
 

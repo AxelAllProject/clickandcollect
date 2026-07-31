@@ -23,20 +23,24 @@ const HomePage = () => {
 
     return (
         <div>
-            <section className="bg-white border-b border-slate-200 py-24 px-4">
-                <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
+            <section className="relative overflow-hidden border-b border-slate-200 py-24 px-4">
+                <div className="absolute inset-0 bg-gradient-to-b from-orange-50 via-slate-50 to-slate-50" />
+                <div className="absolute -top-24 -right-24 w-96 h-96 bg-orange-200/40 rounded-full blur-3xl" />
+                <div className="absolute -bottom-32 -left-24 w-96 h-96 bg-indigo-200/30 rounded-full blur-3xl" />
+
+                <div className="relative max-w-3xl mx-auto text-center flex flex-col items-center">
                     <span className="flex items-center gap-1.5 bg-orange-50 text-orange-700 font-semibold px-3 py-1 rounded-full text-xs mb-6 ring-1 ring-orange-200">
                         <Sparkles size={13} />
-                        NOUVEAU DANS VOTRE VILLE
+                        NOUVEAU EN HAUTS-DE-FRANCE
                     </span>
-                    <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-5 leading-tight tracking-tight">
+                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-5 leading-tight tracking-tight">
                         Vos plats préférés,<br />
-                        <span className="text-orange-600">prêts quand vous l'êtes.</span>
+                        <span className="text-orange-600 italic">prêts quand vous l'êtes.</span>
                     </h1>
                     <p className="text-lg text-slate-500 mb-9 max-w-xl mx-auto">
-                        Découvrez notre boutique de produits frais et artisanaux. Commandez en ligne, évitez la file d'attente, et passez récupérer votre commande directement au comptoir.
+                        Découvrez notre boutique de produits frais et artisanaux. Commandez en ligne, choisissez un point relais et un créneau, et venez récupérer votre commande sans attendre.
                     </p>
-                    <Link to="/catalog" className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3.5 px-7 rounded-xl transition-colors">
+                    <Link to="/catalog" className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3.5 px-7 rounded-xl transition-colors shadow-sm shadow-orange-900/10">
                         Voir le menu complet
                         <ArrowRight size={18} />
                     </Link>
@@ -49,8 +53,8 @@ const HomePage = () => {
                         <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-4">
                             <Clock size={20} />
                         </div>
-                        <h3 className="font-bold text-slate-900 mb-1.5">Zéro attente</h3>
-                        <p className="text-slate-500 text-sm">Votre commande vous attend à l'heure exacte de votre choix.</p>
+                        <h3 className="font-bold text-slate-900 mb-1.5">Créneau au choix</h3>
+                        <p className="text-slate-500 text-sm">Réservez un point relais et un créneau de retrait qui vous arrange, sans file d'attente.</p>
                     </div>
                     <div className="flex flex-col items-center text-center">
                         <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center mb-4">
@@ -64,7 +68,7 @@ const HomePage = () => {
                             <CreditCard size={20} />
                         </div>
                         <h3 className="font-bold text-slate-900 mb-1.5">Paiement sécurisé</h3>
-                        <p className="text-slate-500 text-sm">Payez en ligne en un clic de manière 100% sécurisée.</p>
+                        <p className="text-slate-500 text-sm">Réglez en ligne via Stripe, en toute sécurité, dès la validation du créneau.</p>
                     </div>
                 </div>
             </section>
