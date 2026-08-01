@@ -31,7 +31,9 @@ Application de commande en ligne avec retrait en point relais (click & collect) 
 ## Fonctionnalités
 
 **Côté client**
-- Authentification (inscription / connexion) par JWT
+- Authentification (inscription / connexion) par JWT, avec connexion via Google
+- Mot de passe oublié (réinitialisation par lien envoyé par email)
+- Double authentification (2FA) par email, activable dans le profil
 - Catalogue de produits avec recherche, tri et gestion du stock
 - Panier persistant (ajout, modification de quantité, suppression)
 - Choix d'un point relais et d'un créneau de retrait avec gestion de capacité (plus de réservations que de places disponibles)
@@ -46,6 +48,7 @@ Application de commande en ligne avec retrait en point relais (click & collect) 
 - Gestion des utilisateurs (liste, rôle, suppression, promotion en admin)
 - Gestion des commandes (changement de statut)
 - Gestion des créneaux de retrait (créer / supprimer)
+- Gestion des points relais (créer / éditer / supprimer)
 
 ---
 
@@ -133,8 +136,16 @@ Toutes les valeurs sensibles se configurent via variables d'environnement (voir 
 | `STRIPE_SECRET_KEY` | Clé secrète Stripe (mode test) | — |
 | `STRIPE_PUBLISHABLE_KEY` | Clé publique Stripe (mode test) | — |
 | `STRIPE_WEBHOOK_SECRET` | Secret de vérification des webhooks Stripe | — |
+| `FRONTEND_URL` | URL du frontend, utilisée dans le lien de réinitialisation de mot de passe | `http://localhost:5173` |
+| `MAIL_USERNAME` | Adresse Gmail utilisée pour envoyer les emails (mot de passe oublié, code 2FA) | — |
+| `MAIL_APP_PASSWORD` | Mot de passe d'application Gmail (pas le mot de passe du compte) | — |
+| `GOOGLE_CLIENT_ID` | Client ID OAuth Google pour la connexion "Se connecter avec Google" | — |
 
 Les clés Stripe se récupèrent sur https://dashboard.stripe.com/test/apikeys.
+
+Pour `MAIL_APP_PASSWORD`, active la validation en deux étapes sur le compte Gmail dédié puis génère un mot de passe d'application sur https://myaccount.google.com/apppasswords.
+
+Pour `GOOGLE_CLIENT_ID`, crée un identifiant OAuth 2.0 de type "Application Web" sur https://console.cloud.google.com/apis/credentials, en ajoutant `http://localhost:5173` (et l'URL de prod le cas échéant) aux "Origines JavaScript autorisées". Seul le Client ID est nécessaire (aucun Client Secret : la vérification du jeton se fait côté serveur via l'API publique de Google).
 
 ---
 
@@ -185,7 +196,13 @@ Date d'expiration future et CVC quelconques.
 
 **Authentification**
 - `POST /api/auth/register` — inscription
-- `POST /api/auth/login` — connexion, renvoie un JWT
+- `POST /api/auth/login` — connexion (renvoie directement un JWT, ou `twoFactorRequired: true` si la 2FA est activée)
+- `POST /api/auth/2fa/verify` — valide le code reçu par email et renvoie le JWT
+- `POST /api/auth/2fa/resend` — renvoie un nouveau code 2FA
+- `POST /api/auth/forgot-password` — envoie un lien de réinitialisation par email
+- `POST /api/auth/reset-password` — définit un nouveau mot de passe à partir du lien reçu
+- `POST /api/auth/google` — connexion/inscription via un ID token Google
+- `GET /api/auth/config` — expose le Client ID Google (public) au frontend
 
 **Produits**
 - `GET /api/products` — liste des produits
@@ -197,6 +214,7 @@ Date d'expiration future et CVC quelconques.
 
 **Points relais et créneaux**
 - `GET /api/pickup-locations` — liste des points relais
+- `POST /api/pickup-locations` / `PUT /api/pickup-locations/{id}` / `DELETE /api/pickup-locations/{id}` — gestion des points relais (ADMIN)
 - `GET /api/pickup-slots?locationId=` — créneaux disponibles
 - `POST /api/pickup-slots` / `DELETE /api/pickup-slots/{id}` — gestion des créneaux (ADMIN)
 
@@ -211,6 +229,7 @@ Date d'expiration future et CVC quelconques.
 - `GET/PUT /api/profile` — informations personnelles
 - `PUT /api/profile/password` — changement de mot de passe
 - `PUT /api/profile/settings` — point relais favori
+- `PUT /api/profile/2fa` — active/désactive la double authentification
 
 **Administration**
 - `GET /api/admin/users` — liste des utilisateurs
@@ -244,6 +263,5 @@ clickandcollect/
 ## Prochaines étapes
 
 - Couverture de tests automatisés (JUnit, tests d'intégration avec Testcontainers)
-- Gestion admin des points relais eux-mêmes (actuellement fixes)
 - Migrations de schéma versionnées (Flyway/Liquibase) plutôt que `ddl-auto=update`
 - Pagination sur les listes de produits/commandes

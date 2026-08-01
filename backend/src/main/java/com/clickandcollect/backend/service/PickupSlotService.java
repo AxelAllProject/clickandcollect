@@ -56,7 +56,7 @@ public class PickupSlotService {
     }
 
     private PickupSlotResponseDTO mapToDTO(PickupSlot slot) {
-        long booked = orderRepository.countByPickupSlotIdAndPaymentStatusNot(slot.getId(), "FAILED");
+        long booked = orderRepository.countByPickupSlotIdAndPaymentStatusNotAndStatusNot(slot.getId(), "FAILED", "CANCELLED");
         int remaining = (int) Math.max(0, slot.getCapacity() - booked);
 
         return new PickupSlotResponseDTO(

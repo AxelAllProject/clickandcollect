@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardList, UtensilsCrossed, AlertCircle, MapPin, Clock } from 'lucide-react';
+import { ClipboardList, UtensilsCrossed, AlertCircle, MapPin, Clock, XCircle } from 'lucide-react';
 import api from '../services/api';
 import StatusBadge from '../components/ui/StatusBadge';
 import PaymentStatusBadge from '../components/ui/PaymentStatusBadge';
@@ -23,6 +23,7 @@ const OrdersPage = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [cancellingId, setCancellingId] = useState(null);
 
     useEffect(() => {
         const loadOrders = async () => {
@@ -39,6 +40,20 @@ const OrdersPage = () => {
         };
         loadOrders();
     }, []);
+
+    const handleCancel = async (orderId) => {
+        if (!window.confirm('Annuler cette commande ?')) return;
+        setCancellingId(orderId);
+        try {
+            const res = await api.put(`/orders/${orderId}/cancel`);
+            setOrders((prev) => prev.map((o) => (o.id === orderId ? res.data : o)));
+        } catch (err) {
+            console.error('Erreur annulation commande:', err);
+            alert(err.response?.data?.message || "Impossible d'annuler cette commande.");
+        } finally {
+            setCancellingId(null);
+        }
+    };
 
     return (
         <div className="pb-16">
@@ -111,6 +126,20 @@ const OrdersPage = () => {
                                 <span className="font-semibold text-slate-700 text-sm">Total</span>
                                 <span className="text-lg font-bold text-orange-600">{orderTotal(order).toFixed(2)} €</span>
                             </div>
+
+                            {order.status === 'PENDING' && (
+                                <div className="flex justify-end border-t border-slate-100 mt-4 pt-4">
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={() => handleCancel(order.id)}
+                                        disabled={cancellingId === order.id}
+                                    >
+                                        <XCircle size={15} />
+                                        {cancellingId === order.id ? 'Annulation...' : 'Annuler la commande'}
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>

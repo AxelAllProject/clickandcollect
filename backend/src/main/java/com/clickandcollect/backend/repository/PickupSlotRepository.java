@@ -11,4 +11,6 @@ public interface PickupSlotRepository extends JpaRepository<PickupSlot, Long> {
     List<PickupSlot> findByLocationIdAndDateGreaterThanEqualOrderByDateAscStartTimeAsc(Long locationId, LocalDate fromDate);
 
     List<PickupSlot> findByDateGreaterThanEqualOrderByDateAscStartTimeAsc(LocalDate fromDate);
+
+    boolean existsByLocationId(Long locationId);
 }

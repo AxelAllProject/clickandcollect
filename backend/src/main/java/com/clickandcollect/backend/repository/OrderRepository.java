@@ -8,7 +8,7 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserId(Long userId);
 
-    long countByPickupSlotIdAndPaymentStatusNot(Long pickupSlotId, String paymentStatus);
+    long countByPickupSlotIdAndPaymentStatusNotAndStatusNot(Long pickupSlotId, String paymentStatus, String status);
 
     java.util.Optional<Order> findByStripePaymentIntentId(String stripePaymentIntentId);
 }

@@ -11,6 +11,9 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -44,4 +47,28 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "favorite_location_id")
     private PickupLocation favoriteLocation;
+
+    // "LOCAL" (email + mot de passe) ou "GOOGLE" (connexion via Google)
+    @Column(nullable = false)
+    @ColumnDefault("'LOCAL'")
+    private String authProvider = "LOCAL";
+
+    @Column(unique = true)
+    private String googleId;
+
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_token_expiry")
+    private LocalDateTime resetPasswordTokenExpiry;
+
+    @Column(nullable = false)
+    @ColumnDefault("false")
+    private boolean twoFactorEnabled = false;
+
+    @Column(name = "two_factor_code")
+    private String twoFactorCode;
+
+    @Column(name = "two_factor_code_expiry")
+    private LocalDateTime twoFactorCodeExpiry;
 }

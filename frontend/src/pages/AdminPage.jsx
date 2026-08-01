@@ -5,6 +5,7 @@ import AdminUsers from './AdminUsers';
 import AdminOrders from './AdminOrders';
 import AdminDashboard from './AdminDashboard';
 import AdminSlots from './AdminSlots';
+import AdminLocations from './AdminLocations';
 
 const fieldClass = "w-full p-2.5 mt-1 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 outline-none transition-shadow";
 
@@ -117,6 +118,7 @@ const AdminPage = () => {
         { key: 'users', label: 'Utilisateurs' },
         { key: 'orders', label: 'Commandes' },
         { key: 'slots', label: 'Créneaux' },
+        { key: 'locations', label: 'Points relais' },
     ];
 
     return (
@@ -298,9 +300,13 @@ const AdminPage = () => {
                 <div className="max-w-6xl mx-auto px-4">
                     <AdminOrders />
                 </div>
-            ) : (
+            ) : activeTab === 'slots' ? (
                 <div className="max-w-6xl mx-auto px-4">
                     <AdminSlots />
+                </div>
+            ) : (
+                <div className="max-w-6xl mx-auto px-4">
+                    <AdminLocations />
                 </div>
             )}
         </div>

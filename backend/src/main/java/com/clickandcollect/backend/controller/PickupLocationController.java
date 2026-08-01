@@ -1,11 +1,12 @@
 package com.clickandcollect.backend.controller;
 
+import com.clickandcollect.backend.dto.PickupLocationRequestDTO;
 import com.clickandcollect.backend.dto.PickupLocationResponseDTO;
 import com.clickandcollect.backend.service.PickupLocationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,5 +20,23 @@ public class PickupLocationController {
     @GetMapping
     public List<PickupLocationResponseDTO> getAllLocations() {
         return pickupLocationService.getAllLocations();
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping
+    public PickupLocationResponseDTO createLocation(@Valid @RequestBody PickupLocationRequestDTO request) {
+        return pickupLocationService.createLocation(request);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/{id}")
+    public PickupLocationResponseDTO updateLocation(@PathVariable Long id, @Valid @RequestBody PickupLocationRequestDTO request) {
+        return pickupLocationService.updateLocation(id, request);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @DeleteMapping("/{id}")
+    public void deleteLocation(@PathVariable Long id) {
+        pickupLocationService.deleteLocation(id);
     }
 }

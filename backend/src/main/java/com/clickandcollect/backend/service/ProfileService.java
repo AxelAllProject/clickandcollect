@@ -4,6 +4,7 @@ import com.clickandcollect.backend.dto.ProfileResponseDTO;
 import com.clickandcollect.backend.dto.UpdatePasswordRequestDTO;
 import com.clickandcollect.backend.dto.UpdateProfileRequestDTO;
 import com.clickandcollect.backend.dto.UpdateSettingsRequestDTO;
+import com.clickandcollect.backend.dto.UpdateTwoFactorRequestDTO;
 import com.clickandcollect.backend.exception.InvalidCredentialsException;
 import com.clickandcollect.backend.exception.ResourceNotFoundException;
 import com.clickandcollect.backend.model.PickupLocation;
@@ -54,6 +55,12 @@ public class ProfileService {
         return mapToDTO(saved);
     }
 
+    public ProfileResponseDTO updateTwoFactor(User currentUser, UpdateTwoFactorRequestDTO request) {
+        currentUser.setTwoFactorEnabled(request.isEnabled());
+        User saved = userRepository.save(currentUser);
+        return mapToDTO(saved);
+    }
+
     private ProfileResponseDTO mapToDTO(User user) {
         return new ProfileResponseDTO(
                 user.getId(),
@@ -62,7 +69,9 @@ public class ProfileService {
                 user.getEmail(),
                 user.getPhone(),
                 user.getRole(),
-                user.getFavoriteLocation() != null ? user.getFavoriteLocation().getId() : null
+                user.getFavoriteLocation() != null ? user.getFavoriteLocation().getId() : null,
+                user.getAuthProvider(),
+                user.isTwoFactorEnabled()
         );
     }
 }

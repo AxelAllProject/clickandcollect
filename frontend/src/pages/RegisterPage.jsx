@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, AlertCircle, CheckCircle2 } from 'lucide-react';
 import api from '../services/api';
+import { useCart } from '../context/CartContext';
 import Button from '../components/ui/Button';
+import GoogleSignInButton from '../components/auth/GoogleSignInButton';
 
 const inputClass = "w-full p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-shadow";
 
@@ -15,7 +17,20 @@ const RegisterPage = () => {
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    const { refreshCart } = useCart();
     const navigate = useNavigate();
+
+    const handleGoogleSuccess = async (userResponse) => {
+        setError('');
+        localStorage.setItem('jwt_token', userResponse.token);
+        await refreshCart();
+        navigate('/');
+    };
+
+    const handleGoogleError = (err) => {
+        console.error("Erreur d'inscription Google:", err);
+        setError("Impossible de continuer avec Google.");
+    };
 
     const handleRegister = async (e) => {
         e.preventDefault();
@@ -125,6 +140,14 @@ const RegisterPage = () => {
                         {loading ? 'Création...' : "M'inscrire"}
                     </Button>
                 </form>
+
+                <div className="flex items-center gap-3 my-6">
+                    <div className="flex-grow h-px bg-slate-200" />
+                    <span className="text-xs text-slate-400">ou</span>
+                    <div className="flex-grow h-px bg-slate-200" />
+                </div>
+
+                <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
 
                 <div className="mt-8 text-center text-sm text-slate-500">
                     Déjà un compte ? <Link to="/login" className="text-orange-600 font-semibold hover:underline">Se connecter</Link>

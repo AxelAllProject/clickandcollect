@@ -4,6 +4,7 @@ import com.clickandcollect.backend.dto.ProfileResponseDTO;
 import com.clickandcollect.backend.dto.UpdatePasswordRequestDTO;
 import com.clickandcollect.backend.dto.UpdateProfileRequestDTO;
 import com.clickandcollect.backend.dto.UpdateSettingsRequestDTO;
+import com.clickandcollect.backend.dto.UpdateTwoFactorRequestDTO;
 import com.clickandcollect.backend.model.User;
 import com.clickandcollect.backend.service.ProfileService;
 import jakarta.validation.Valid;
@@ -36,5 +37,10 @@ public class ProfileController {
     @PutMapping("/settings")
     public ProfileResponseDTO updateSettings(@Valid @RequestBody UpdateSettingsRequestDTO request, @AuthenticationPrincipal User currentUser) {
         return profileService.updateSettings(currentUser, request);
+    }
+
+    @PutMapping("/2fa")
+    public ProfileResponseDTO updateTwoFactor(@Valid @RequestBody UpdateTwoFactorRequestDTO request, @AuthenticationPrincipal User currentUser) {
+        return profileService.updateTwoFactor(currentUser, request);
     }
 }

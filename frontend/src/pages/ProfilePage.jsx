@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { UserCircle, KeyRound, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { UserCircle, KeyRound, AlertCircle, CheckCircle2, ShieldCheck } from 'lucide-react';
 import api from '../services/api';
 import { useToast } from '../context/ToastContext';
 import Button from '../components/ui/Button';
@@ -25,6 +25,10 @@ const ProfilePage = () => {
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState(false);
 
+    const [authProvider, setAuthProvider] = useState('LOCAL');
+    const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+    const [savingTwoFactor, setSavingTwoFactor] = useState(false);
+
     useEffect(() => {
         api.get('/profile')
             .then((res) => {
@@ -32,10 +36,27 @@ const ProfilePage = () => {
                 setFirstname(res.data.firstname);
                 setLastname(res.data.lastname);
                 setPhone(res.data.phone || '');
+                setAuthProvider(res.data.authProvider || 'LOCAL');
+                setTwoFactorEnabled(res.data.twoFactorEnabled);
             })
             .catch((err) => console.error('Erreur chargement profil:', err))
             .finally(() => setLoading(false));
     }, []);
+
+    const handleToggleTwoFactor = async () => {
+        const nextValue = !twoFactorEnabled;
+        setSavingTwoFactor(true);
+        try {
+            const res = await api.put('/profile/2fa', { enabled: nextValue });
+            setTwoFactorEnabled(res.data.twoFactorEnabled);
+            showToast(nextValue ? 'Double authentification activée' : 'Double authentification désactivée', 'success');
+        } catch (err) {
+            console.error('Erreur mise à jour 2FA:', err);
+            showToast("Impossible de mettre à jour la double authentification.", 'error');
+        } finally {
+            setSavingTwoFactor(false);
+        }
+    };
 
     const handleSaveProfile = async (e) => {
         e.preventDefault();
@@ -136,6 +157,42 @@ const ProfilePage = () => {
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <h2 className="text-base font-bold text-slate-900 mb-1 flex items-center gap-2">
+                        <ShieldCheck size={18} className="text-orange-600" />
+                        Sécurité
+                    </h2>
+                    <p className="text-sm text-slate-500 mb-4">
+                        Un code à usage unique te sera envoyé par email à chaque connexion.
+                    </p>
+
+                    <button
+                        type="button"
+                        onClick={handleToggleTwoFactor}
+                        disabled={savingTwoFactor}
+                        className={`w-full flex items-center justify-between text-left p-4 rounded-xl border transition-colors disabled:opacity-50 ${twoFactorEnabled ? 'border-orange-600 bg-orange-50 ring-1 ring-orange-600' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
+                    >
+                        <span>
+                            <span className="font-semibold text-slate-800 text-sm block">Double authentification (2FA)</span>
+                            <span className="text-xs text-slate-500">{twoFactorEnabled ? 'Activée' : 'Désactivée'}</span>
+                        </span>
+                        <span className={`w-11 h-6 rounded-full flex items-center px-0.5 transition-colors ${twoFactorEnabled ? 'bg-orange-600 justify-end' : 'bg-slate-300 justify-start'}`}>
+                            <span className="w-5 h-5 rounded-full bg-white shadow-sm" />
+                        </span>
+                    </button>
+                </div>
+
+                {authProvider === 'GOOGLE' ? (
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h2 className="text-base font-bold text-slate-900 mb-1 flex items-center gap-2">
+                            <KeyRound size={18} className="text-orange-600" />
+                            Mot de passe
+                        </h2>
+                        <p className="text-sm text-slate-500">
+                            Ce compte est connecté via Google, il n'a pas de mot de passe Click &amp; Collect à gérer ici.
+                        </p>
+                    </div>
+                ) : (
+                <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
                     <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
                         <KeyRound size={18} className="text-orange-600" />
                         Mot de passe
@@ -174,6 +231,7 @@ const ProfilePage = () => {
                         </Button>
                     </form>
                 </div>
+                )}
             </div>
         </div>
     );

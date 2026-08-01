@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, AlertCircle } from 'lucide-react';
+import { ShoppingBag, AlertCircle, ShieldCheck } from 'lucide-react';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
+import { useToast } from '../context/ToastContext';
 import Button from '../components/ui/Button';
+import GoogleSignInButton from '../components/auth/GoogleSignInButton';
 
 const inputClass = "w-full p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-shadow";
 
@@ -12,9 +14,23 @@ const LoginPage = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const { refreshCart } = useCart();
 
+    // Étape 2FA : si le backend renvoie twoFactorRequired, on demande le code
+    // envoyé par email avant de finaliser la connexion.
+    const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+    const [code, setCode] = useState('');
+    const [verifying, setVerifying] = useState(false);
+    const [resending, setResending] = useState(false);
+
+    const { refreshCart } = useCart();
+    const { showToast } = useToast();
     const navigate = useNavigate();
+
+    const completeLogin = async (token) => {
+        localStorage.setItem('jwt_token', token);
+        await refreshCart();
+        navigate('/');
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -23,9 +39,11 @@ const LoginPage = () => {
 
         try {
             const response = await api.post('/auth/login', { email, password });
-            localStorage.setItem('jwt_token', response.data.token);
-            await refreshCart();
-            navigate('/');
+            if (response.data.twoFactorRequired) {
+                setTwoFactorRequired(true);
+            } else {
+                await completeLogin(response.data.user.token);
+            }
         } catch (err) {
             console.error("Erreur de connexion:", err);
             setError("Identifiants incorrects ou problème de serveur.");
@@ -34,16 +52,57 @@ const LoginPage = () => {
         }
     };
 
+    const handleVerifyCode = async (e) => {
+        e.preventDefault();
+        setError('');
+        setVerifying(true);
+
+        try {
+            const response = await api.post('/auth/2fa/verify', { email, code });
+            await completeLogin(response.data.token);
+        } catch (err) {
+            console.error("Erreur de vérification 2FA:", err);
+            setError("Code invalide ou expiré.");
+        } finally {
+            setVerifying(false);
+        }
+    };
+
+    const handleResendCode = async () => {
+        setResending(true);
+        try {
+            await api.post('/auth/2fa/resend', { email });
+            showToast('Un nouveau code a été envoyé.', 'success');
+        } catch (err) {
+            console.error("Erreur de renvoi du code:", err);
+            showToast("Impossible de renvoyer le code.", 'error');
+        } finally {
+            setResending(false);
+        }
+    };
+
+    const handleGoogleSuccess = async (userResponse) => {
+        setError('');
+        await completeLogin(userResponse.token);
+    };
+
+    const handleGoogleError = (err) => {
+        console.error("Erreur de connexion Google:", err);
+        setError("Impossible de se connecter avec Google.");
+    };
+
     return (
         <div className="min-h-[calc(100vh-57px)] flex items-center justify-center bg-slate-50 p-4">
             <div className="bg-white w-full max-w-md rounded-2xl shadow-sm border border-slate-200 p-8">
 
                 <div className="text-center mb-8">
                     <div className="bg-orange-50 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 text-orange-600">
-                        <ShoppingBag size={24} />
+                        {twoFactorRequired ? <ShieldCheck size={24} /> : <ShoppingBag size={24} />}
                     </div>
                     <h1 className="text-xl font-bold text-slate-900 mb-1">Click &amp; Collect</h1>
-                    <p className="text-sm text-slate-500">Connectez-vous pour commander</p>
+                    <p className="text-sm text-slate-500">
+                        {twoFactorRequired ? 'Entre le code reçu par email' : 'Connectez-vous pour commander'}
+                    </p>
                 </div>
 
                 {error && (
@@ -53,35 +112,82 @@ const LoginPage = () => {
                     </div>
                 )}
 
-                <form onSubmit={handleLogin} className="flex flex-col gap-5">
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-slate-700">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            placeholder="jean.dupont@email.com"
-                            className={inputClass}
-                        />
-                    </div>
+                {twoFactorRequired ? (
+                    <form onSubmit={handleVerifyCode} className="flex flex-col gap-5">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-slate-700">Code de vérification</label>
+                            <input
+                                type="text"
+                                inputMode="numeric"
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                                required
+                                autoFocus
+                                placeholder="123456"
+                                className={`${inputClass} tracking-[0.3em] text-center text-lg`}
+                            />
+                            <span className="text-xs text-slate-400">Envoyé à {email}, valable 10 minutes.</span>
+                        </div>
 
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-slate-700">Mot de passe</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            placeholder="••••••••"
-                            className={inputClass}
-                        />
-                    </div>
+                        <Button type="submit" size="lg" disabled={verifying} className="w-full mt-1">
+                            {verifying ? 'Vérification...' : 'Valider'}
+                        </Button>
 
-                    <Button type="submit" size="lg" disabled={loading} className="w-full mt-1">
-                        {loading ? 'Connexion...' : 'Se connecter'}
-                    </Button>
-                </form>
+                        <button
+                            type="button"
+                            onClick={handleResendCode}
+                            disabled={resending}
+                            className="text-sm text-orange-600 font-semibold hover:underline disabled:opacity-50"
+                        >
+                            {resending ? 'Envoi...' : 'Renvoyer le code'}
+                        </button>
+                    </form>
+                ) : (
+                    <>
+                        <form onSubmit={handleLogin} className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-slate-700">Email</label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    placeholder="jean.dupont@email.com"
+                                    className={inputClass}
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-sm font-medium text-slate-700">Mot de passe</label>
+                                    <Link to="/forgot-password" className="text-xs text-orange-600 font-semibold hover:underline">
+                                        Mot de passe oublié ?
+                                    </Link>
+                                </div>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    placeholder="••••••••"
+                                    className={inputClass}
+                                />
+                            </div>
+
+                            <Button type="submit" size="lg" disabled={loading} className="w-full mt-1">
+                                {loading ? 'Connexion...' : 'Se connecter'}
+                            </Button>
+                        </form>
+
+                        <div className="flex items-center gap-3 my-6">
+                            <div className="flex-grow h-px bg-slate-200" />
+                            <span className="text-xs text-slate-400">ou</span>
+                            <div className="flex-grow h-px bg-slate-200" />
+                        </div>
+
+                        <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+                    </>
+                )}
 
                 <div className="mt-8 text-center text-sm text-slate-500">
                     Pas encore de compte ? <Link to="/register" className="text-orange-600 font-semibold hover:underline">Créer un compte</Link>

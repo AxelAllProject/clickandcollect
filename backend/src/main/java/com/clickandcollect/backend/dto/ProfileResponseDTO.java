@@ -15,4 +15,6 @@ public class ProfileResponseDTO {
     private String phone;
     private String role;
     private Long favoriteLocationId;
+    private String authProvider;
+    private boolean twoFactorEnabled;
 }

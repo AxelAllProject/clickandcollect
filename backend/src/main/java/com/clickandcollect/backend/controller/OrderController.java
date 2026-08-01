@@ -42,6 +42,11 @@ public class OrderController {
         return orderService.getOrderById(id, currentUser);
     }
 
+    @PutMapping("/{id}/cancel")
+    public OrderResponseDTO cancelOrder(@PathVariable Long id, @AuthenticationPrincipal User currentUser){
+        return orderService.cancelOrder(id, currentUser);
+    }
+
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/all")
     public List<OrderResponseDTO> getAllOrders(){

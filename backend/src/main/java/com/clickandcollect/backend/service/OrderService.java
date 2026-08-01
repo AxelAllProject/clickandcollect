@@ -59,7 +59,7 @@ public class OrderService {
         PickupSlot slot = pickupSlotRepository.findById(request.getPickupSlotId())
                 .orElseThrow(() -> new ResourceNotFoundException("Créneau introuvable"));
 
-        long booked = orderRepository.countByPickupSlotIdAndPaymentStatusNot(slot.getId(), "FAILED");
+        long booked = orderRepository.countByPickupSlotIdAndPaymentStatusNotAndStatusNot(slot.getId(), "FAILED", "CANCELLED");
         if (booked >= slot.getCapacity()) {
             throw new SlotFullException("Ce créneau est complet, choisis-en un autre.");
         }
@@ -157,6 +157,32 @@ public class OrderService {
                 });
     }
 
+    @Transactional
+    public OrderResponseDTO cancelOrder(Long orderId, User currentUser) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Commande non trouvée"));
+
+        if (!order.getUser().getId().equals(currentUser.getId())) {
+            throw new ForbiddenOperationException("Vous ne pouvez pas annuler cette commande");
+        }
+
+        if (!"PENDING".equals(order.getStatus())) {
+            throw new IllegalStateException("Cette commande ne peut plus être annulée");
+        }
+
+        List<OrderItem> items = orderItemRepository.findByOrderId(order.getId());
+        for (OrderItem item : items) {
+            Product product = item.getProduct();
+            product.setStock(product.getStock() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        order.setStatus("CANCELLED");
+        Order savedOrder = orderRepository.save(order);
+
+        return mapToOrderResponseDTO(savedOrder);
+    }
+
     public OrderResponseDTO updateOrderStatus(Long orderId, String newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("La commande n'a pas été trouvé"));
@@ -196,7 +222,7 @@ public class OrderService {
     }
 
     private PickupSlotResponseDTO mapSlotToDTO(PickupSlot slot) {
-        long booked = orderRepository.countByPickupSlotIdAndPaymentStatusNot(slot.getId(), "FAILED");
+        long booked = orderRepository.countByPickupSlotIdAndPaymentStatusNotAndStatusNot(slot.getId(), "FAILED", "CANCELLED");
         int remaining = (int) Math.max(0, slot.getCapacity() - booked);
 
         return new PickupSlotResponseDTO(
