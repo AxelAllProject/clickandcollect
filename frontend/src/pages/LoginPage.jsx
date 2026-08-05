@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, AlertCircle, ShieldCheck } from 'lucide-react';
+import { LogIn, ShieldCheck } from 'lucide-react';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import AuthLayout from '../components/auth/AuthLayout';
 import Button from '../components/ui/Button';
+import TextField from '../components/ui/TextField';
+import Alert from '../components/ui/Alert';
 import GoogleSignInButton from '../components/auth/GoogleSignInButton';
-
-const inputClass = "w-full p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-shadow";
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -92,109 +93,98 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="min-h-[calc(100vh-57px)] flex items-center justify-center bg-slate-50 p-4">
-            <div className="bg-white w-full max-w-md rounded-2xl shadow-sm border border-slate-200 p-8">
-
-                <div className="text-center mb-8">
-                    <div className="bg-orange-50 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 text-orange-600">
-                        {twoFactorRequired ? <ShieldCheck size={24} /> : <ShoppingBag size={24} />}
-                    </div>
-                    <h1 className="text-xl font-bold text-slate-900 mb-1">Click &amp; Collect</h1>
-                    <p className="text-sm text-slate-500">
-                        {twoFactorRequired ? 'Entre le code reçu par email' : 'Connectez-vous pour commander'}
-                    </p>
-                </div>
-
-                {error && (
-                    <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm mb-6">
-                        <AlertCircle size={16} className="flex-shrink-0" />
-                        {error}
-                    </div>
-                )}
-
-                {twoFactorRequired ? (
-                    <form onSubmit={handleVerifyCode} className="flex flex-col gap-5">
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-medium text-slate-700">Code de vérification</label>
-                            <input
-                                type="text"
-                                inputMode="numeric"
-                                value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                                required
-                                autoFocus
-                                placeholder="123456"
-                                className={`${inputClass} tracking-[0.3em] text-center text-lg`}
-                            />
-                            <span className="text-xs text-slate-400">Envoyé à {email}, valable 10 minutes.</span>
-                        </div>
-
-                        <Button type="submit" size="lg" disabled={verifying} className="w-full mt-1">
-                            {verifying ? 'Vérification...' : 'Valider'}
-                        </Button>
-
-                        <button
-                            type="button"
-                            onClick={handleResendCode}
-                            disabled={resending}
-                            className="text-sm text-orange-600 font-semibold hover:underline disabled:opacity-50"
-                        >
-                            {resending ? 'Envoi...' : 'Renvoyer le code'}
-                        </button>
-                    </form>
-                ) : (
+        <AuthLayout
+            icon={twoFactorRequired ? ShieldCheck : LogIn}
+            title={twoFactorRequired ? 'Vérification en deux étapes' : 'Content de vous revoir'}
+            subtitle={
+                twoFactorRequired
+                    ? `Saisissez le code à 6 chiffres envoyé à ${email}.`
+                    : 'Connectez-vous pour commander et suivre vos retraits.'
+            }
+            footer={
+                !twoFactorRequired && (
                     <>
-                        <form onSubmit={handleLogin} className="flex flex-col gap-5">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium text-slate-700">Email</label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    placeholder="jean.dupont@email.com"
-                                    className={inputClass}
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <div className="flex items-center justify-between">
-                                    <label className="text-sm font-medium text-slate-700">Mot de passe</label>
-                                    <Link to="/forgot-password" className="text-xs text-orange-600 font-semibold hover:underline">
-                                        Mot de passe oublié ?
-                                    </Link>
-                                </div>
-                                <input
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    required
-                                    placeholder="••••••••"
-                                    className={inputClass}
-                                />
-                            </div>
-
-                            <Button type="submit" size="lg" disabled={loading} className="w-full mt-1">
-                                {loading ? 'Connexion...' : 'Se connecter'}
-                            </Button>
-                        </form>
-
-                        <div className="flex items-center gap-3 my-6">
-                            <div className="flex-grow h-px bg-slate-200" />
-                            <span className="text-xs text-slate-400">ou</span>
-                            <div className="flex-grow h-px bg-slate-200" />
-                        </div>
-
-                        <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+                        Pas encore de compte ?{' '}
+                        <Link to="/register" className="text-orange-600 font-semibold hover:underline">
+                            Créer un compte
+                        </Link>
                     </>
-                )}
+                )
+            }
+        >
+            {error && <Alert className="mb-6">{error}</Alert>}
 
-                <div className="mt-8 text-center text-sm text-slate-500">
-                    Pas encore de compte ? <Link to="/register" className="text-orange-600 font-semibold hover:underline">Créer un compte</Link>
-                </div>
+            {twoFactorRequired ? (
+                <form onSubmit={handleVerifyCode} className="flex flex-col gap-5">
+                    <TextField
+                        label="Code de vérification"
+                        type="text"
+                        inputMode="numeric"
+                        value={code}
+                        onChange={(e) => setCode(e.target.value)}
+                        required
+                        autoFocus
+                        placeholder="123456"
+                        hint="Valable 10 minutes."
+                        className="tracking-[0.4em] text-center text-lg"
+                    />
 
-            </div>
-        </div>
+                    <Button type="submit" size="lg" disabled={verifying} className="w-full">
+                        {verifying ? 'Vérification...' : 'Valider le code'}
+                    </Button>
+
+                    <button
+                        type="button"
+                        onClick={handleResendCode}
+                        disabled={resending}
+                        className="text-sm text-orange-600 font-semibold hover:underline disabled:opacity-50"
+                    >
+                        {resending ? 'Envoi...' : 'Renvoyer le code'}
+                    </button>
+                </form>
+            ) : (
+                <>
+                    <form onSubmit={handleLogin} className="flex flex-col gap-5">
+                        <TextField
+                            label="Email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            autoComplete="email"
+                            placeholder="jean.dupont@email.com"
+                        />
+
+                        <TextField
+                            label="Mot de passe"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                            autoComplete="current-password"
+                            placeholder="••••••••"
+                            action={
+                                <Link to="/forgot-password" className="text-xs text-orange-600 font-semibold hover:underline">
+                                    Mot de passe oublié ?
+                                </Link>
+                            }
+                        />
+
+                        <Button type="submit" size="lg" disabled={loading} className="w-full mt-1">
+                            {loading ? 'Connexion...' : 'Se connecter'}
+                        </Button>
+                    </form>
+
+                    <div className="flex items-center gap-3 my-7">
+                        <div className="flex-grow h-px bg-slate-200" />
+                        <span className="text-xs text-slate-400">ou continuer avec</span>
+                        <div className="flex-grow h-px bg-slate-200" />
+                    </div>
+
+                    <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+                </>
+            )}
+        </AuthLayout>
     );
 };
 

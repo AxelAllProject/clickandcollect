@@ -1,11 +1,13 @@
 package com.clickandcollect.backend.config;
 
-import com.clickandcollect.backend.model.Product;
-import com.clickandcollect.backend.model.User;
-import com.clickandcollect.backend.repository.ProductRepository;
-import com.clickandcollect.backend.repository.UserRepository;
+import com.clickandcollect.backend.product.Product;
+import com.clickandcollect.backend.user.Role;
+import com.clickandcollect.backend.user.User;
+import com.clickandcollect.backend.product.ProductRepository;
+import com.clickandcollect.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -16,9 +18,11 @@ import java.util.List;
 /**
  * Jeu de données de démo pour tester en local : un compte admin et un
  * catalogue de départ. Ne fait rien si un compte/produit existe déjà.
+ * Désactivé quand le profil "prod" est actif (spring.profiles.active=prod).
  */
 @Component
 @Order(1)
+@Profile("!prod")
 @RequiredArgsConstructor
 public class DemoDataSeeder implements CommandLineRunner {
 
@@ -34,7 +38,7 @@ public class DemoDataSeeder implements CommandLineRunner {
             admin.setLastname("ClickAndCollect");
             admin.setEmail("admin@clickandcollect.fr");
             admin.setPassword(passwordEncoder.encode("AdminTest1234!"));
-            admin.setRole("ADMIN");
+            admin.setRole(Role.ADMIN);
             userRepository.save(admin);
         }
 
@@ -44,7 +48,7 @@ public class DemoDataSeeder implements CommandLineRunner {
             client.setLastname("Client");
             client.setEmail("client.test@clickandcollect.fr");
             client.setPassword(passwordEncoder.encode("ClientTest1234!"));
-            client.setRole("USER");
+            client.setRole(Role.USER);
             userRepository.save(client);
         }
 

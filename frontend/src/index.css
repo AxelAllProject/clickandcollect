@@ -1,51 +1,74 @@
 @import "tailwindcss";
 
 /*
- * Palette "marché artisanal" : on redéfinit les rampes de couleurs Tailwind
- * existantes (orange/slate/indigo) plutôt que d'en inventer de nouvelles.
- * Comme toutes les pages utilisent déjà bg-orange-600, text-slate-500,
- * ring-indigo-500 etc., ce seul bloc reskin toute l'appli sans devoir
- * toucher chaque composant.
+ * ---------------------------------------------------------------------------
+ * Design system "épicerie de quartier"
+ * ---------------------------------------------------------------------------
+ * Deux mécaniques cohabitent volontairement :
+ *
+ * 1. On REDÉFINIT les rampes Tailwind existantes (orange / slate / indigo).
+ *    Toutes les pages déjà écrites utilisent bg-orange-600, text-slate-500,
+ *    ring-indigo-500... : ce bloc les reskin sans toucher un seul composant.
+ *
+ * 2. On AJOUTE une rampe sémantique --color-brand-* (vert forêt) pour les
+ *    nouvelles surfaces sombres (hero, footer, panneaux auth, CTA final).
+ *
+ * Identité : vert forêt (confiance, local, frais) + terracotta chaud
+ * (appétit, action) posés sur un fond crème. Le vert porte les surfaces,
+ * l'orange porte UNIQUEMENT les actions -> hiérarchie visuelle nette.
  */
 @theme {
-    /* orange -> terracotta (accent principal, boutons, prix) */
-    --color-orange-50: #FBF1EA;
-    --color-orange-100: #F6E1D2;
-    --color-orange-200: #EBC3A6;
-    --color-orange-300: #DEA079;
-    --color-orange-400: #D17D52;
-    --color-orange-500: #C0602F;
-    --color-orange-600: #A84E23;
-    --color-orange-700: #8A3E1C;
-    --color-orange-800: #6C3117;
-    --color-orange-900: #522511;
-    --color-orange-950: #2E1409;
+    /* --- Marque : vert forêt (surfaces sombres, sections immersives) ------ */
+    --color-brand-50: #F0F5F1;
+    --color-brand-100: #DCE9DF;
+    --color-brand-200: #B7D2BF;
+    --color-brand-300: #8CB699;
+    --color-brand-400: #629674;
+    --color-brand-500: #427658;
+    --color-brand-600: #2E5C44;
+    --color-brand-700: #244936;
+    --color-brand-800: #1C3A2B;
+    --color-brand-900: #132A1F;
+    --color-brand-950: #0B1A13;
 
-    /* slate -> pierre chaude (tous les neutres : fonds, textes, bordures) */
-    --color-slate-50: #FAF7F2;
-    --color-slate-100: #F1EAE0;
-    --color-slate-200: #E4D9C9;
-    --color-slate-300: #CFC0AA;
-    --color-slate-400: #A79680;
-    --color-slate-500: #8A7A66;
-    --color-slate-600: #6B5D4D;
-    --color-slate-700: #52463A;
-    --color-slate-800: #3A312A;
-    --color-slate-900: #241E19;
-    --color-slate-950: #16120F;
+    /* --- orange -> terracotta chaude (accent d'action : CTA, prix) -------- */
+    --color-orange-50: #FDF4EC;
+    --color-orange-100: #FAE4CF;
+    --color-orange-200: #F4C7A0;
+    --color-orange-300: #EDA870;
+    --color-orange-400: #E58C48;
+    --color-orange-500: #D9722B;
+    --color-orange-600: #BE5B1C;
+    --color-orange-700: #9B4717;
+    --color-orange-800: #793714;
+    --color-orange-900: #5B2A11;
+    --color-orange-950: #321708;
 
-    /* indigo -> olive (accent réservé à l'espace admin) */
-    --color-indigo-50: #F4F6EC;
-    --color-indigo-100: #E6EAD3;
-    --color-indigo-200: #CDD6A8;
-    --color-indigo-300: #AEBD7D;
-    --color-indigo-400: #8FA357;
-    --color-indigo-500: #71863D;
-    --color-indigo-600: #5C6E31;
-    --color-indigo-700: #495728;
-    --color-indigo-800: #3A451F;
-    --color-indigo-900: #2C3518;
-    --color-indigo-950: #1A1F0E;
+    /* --- slate -> neutres chauds (fonds crème, textes, bordures) ---------- */
+    --color-slate-50: #FBF8F3;
+    --color-slate-100: #F4EEE4;
+    --color-slate-200: #E7DFD1;
+    --color-slate-300: #D2C7B5;
+    --color-slate-400: #A89B87;
+    --color-slate-500: #857866;
+    --color-slate-600: #665B4C;
+    --color-slate-700: #4D453A;
+    --color-slate-800: #363029;
+    --color-slate-900: #221E19;
+    --color-slate-950: #14110E;
+
+    /* --- indigo -> aligné sur le vert de marque (espace admin) ------------ */
+    --color-indigo-50: #F0F5F1;
+    --color-indigo-100: #DCE9DF;
+    --color-indigo-200: #B7D2BF;
+    --color-indigo-300: #8CB699;
+    --color-indigo-400: #629674;
+    --color-indigo-500: #427658;
+    --color-indigo-600: #2E5C44;
+    --color-indigo-700: #244936;
+    --color-indigo-800: #1C3A2B;
+    --color-indigo-900: #132A1F;
+    --color-indigo-950: #0B1A13;
 
     --font-display: "Fraunces", "Inter", ui-serif, serif;
 }
@@ -54,15 +77,25 @@ body {
     font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     background-color: var(--color-slate-50);
+    color: var(--color-slate-800);
 }
 
 .font-display,
 h1, h2, h3 {
     font-family: var(--font-display);
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
 }
 
+/* Ancrages (#rayons, #etapes...) qui ne passent pas sous la navbar sticky. */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * Animations d'entrée
+ * ------------------------------------------------------------------------ */
 @keyframes fade-up {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
@@ -84,6 +117,16 @@ h1, h2, h3 {
     to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes float-soft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
 .animate-fade-up {
     animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -96,8 +139,71 @@ h1, h2, h3 {
     animation: toast-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.animate-float {
+    animation: float-soft 6s ease-in-out infinite;
+}
+
+.animate-marquee {
+    animation: marquee 32s linear infinite;
+}
+
 .skeleton {
-    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 37%, #f1f5f9 63%);
+    background: linear-gradient(90deg, var(--color-slate-100) 25%, var(--color-slate-200) 37%, var(--color-slate-100) 63%);
     background-size: 400% 100%;
     animation: shimmer 1.4s ease infinite;
+}
+
+/* ---------------------------------------------------------------------------
+ * Révélation au scroll
+ * ---------------------------------------------------------------------------
+ * Le composant <Reveal> (components/ui/Reveal.jsx) pose .reveal + une variante
+ * de direction, puis ajoute .is-visible quand l'IntersectionObserver déclenche.
+ * Le délai de cascade passe par la variable --reveal-delay.
+ */
+.reveal {
+    opacity: 0;
+    transition:
+        opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+    will-change: opacity, transform;
+}
+
+.reveal-up { transform: translateY(30px); }
+.reveal-down { transform: translateY(-24px); }
+.reveal-left { transform: translateX(-36px); }
+.reveal-right { transform: translateX(36px); }
+.reveal-zoom { transform: scale(0.93); }
+
+.reveal.is-visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* Barre de progression dessinée au scroll (section "Comment ça marche"). */
+.scroll-line {
+    transform-origin: left center;
+    transform: scaleX(var(--progress, 0));
+    transition: transform 0.15s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+
+    .reveal,
+    .reveal.is-visible {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+
+    .animate-float,
+    .animate-marquee,
+    .animate-fade-up,
+    .animate-pop,
+    .skeleton {
+        animation: none;
+    }
+
+    .scroll-line { transform: scaleX(1); }
 }

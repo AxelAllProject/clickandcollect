@@ -1,12 +1,24 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserPlus, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 import api from '../services/api';
 import { useCart } from '../context/CartContext';
+import AuthLayout from '../components/auth/AuthLayout';
 import Button from '../components/ui/Button';
+import TextField from '../components/ui/TextField';
+import Alert from '../components/ui/Alert';
 import GoogleSignInButton from '../components/auth/GoogleSignInButton';
 
-const inputClass = "w-full p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500/40 focus:border-orange-500 transition-shadow";
+const HIGHLIGHTS = [
+    'Un compte gratuit, sans engagement',
+    'Vos créneaux et commandes au même endroit',
+    'Réservez votre premier panier en 2 minutes',
+];
+
+const QUOTE = {
+    texte: "Créer le compte m'a pris une minute, et j'avais mon panier prêt pour le soir même.",
+    auteur: 'Thomas, client à Roubaix',
+};
 
 const RegisterPage = () => {
     const [firstname, setFirstname] = useState('');
@@ -59,102 +71,83 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="min-h-[calc(100vh-57px)] flex items-center justify-center bg-slate-50 p-4">
-            <div className="bg-white w-full max-w-md rounded-2xl shadow-sm border border-slate-200 p-8">
+        <AuthLayout
+            icon={UserPlus}
+            title="Créer votre compte"
+            subtitle="Quelques informations et votre premier panier est à portée de clic."
+            highlights={HIGHLIGHTS}
+            quote={QUOTE}
+            footer={
+                <>
+                    Déjà un compte ?{' '}
+                    <Link to="/login" className="text-orange-600 font-semibold hover:underline">
+                        Se connecter
+                    </Link>
+                </>
+            }
+        >
+            {error && <Alert className="mb-6">{error}</Alert>}
+            {success && (
+                <Alert tone="success" className="mb-6">
+                    Compte créé avec succès, redirection...
+                </Alert>
+            )}
 
-                <div className="text-center mb-8">
-                    <div className="bg-orange-50 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 text-orange-600">
-                        <UserPlus size={24} />
-                    </div>
-                    <h1 className="text-xl font-bold text-slate-900 mb-1">Créer un compte</h1>
-                    <p className="text-sm text-slate-500">Rejoignez Click &amp; Collect</p>
+            <form onSubmit={handleRegister} className="flex flex-col gap-5">
+                <div className="grid grid-cols-2 gap-4">
+                    <TextField
+                        label="Prénom"
+                        value={firstname}
+                        onChange={(e) => setFirstname(e.target.value)}
+                        required
+                        autoComplete="given-name"
+                        placeholder="Jean"
+                    />
+                    <TextField
+                        label="Nom"
+                        value={lastname}
+                        onChange={(e) => setLastname(e.target.value)}
+                        required
+                        autoComplete="family-name"
+                        placeholder="Dupont"
+                    />
                 </div>
 
-                {error && (
-                    <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm mb-6">
-                        <AlertCircle size={16} className="flex-shrink-0" />
-                        {error}
-                    </div>
-                )}
+                <TextField
+                    label="Email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                    placeholder="jean.dupont@email.com"
+                />
 
-                {success && (
-                    <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-700 p-3 rounded-lg text-sm mb-6">
-                        <CheckCircle2 size={16} className="flex-shrink-0" />
-                        Compte créé avec succès, redirection...
-                    </div>
-                )}
+                <TextField
+                    label="Mot de passe"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={12}
+                    autoComplete="new-password"
+                    placeholder="••••••••••••"
+                    hint="12 caractères minimum"
+                />
 
-                <form onSubmit={handleRegister} className="flex flex-col gap-5">
-                    <div className="flex gap-4">
-                        <div className="flex flex-col gap-2 w-1/2">
-                            <label className="text-sm font-medium text-slate-700">Prénom</label>
-                            <input
-                                type="text"
-                                value={firstname}
-                                onChange={(e) => setFirstname(e.target.value)}
-                                required
-                                placeholder="Jean"
-                                className={inputClass}
-                            />
-                        </div>
-                        <div className="flex flex-col gap-2 w-1/2">
-                            <label className="text-sm font-medium text-slate-700">Nom</label>
-                            <input
-                                type="text"
-                                value={lastname}
-                                onChange={(e) => setLastname(e.target.value)}
-                                required
-                                placeholder="Dupont"
-                                className={inputClass}
-                            />
-                        </div>
-                    </div>
+                <Button type="submit" size="lg" disabled={loading || success} className="w-full mt-1">
+                    {loading ? 'Création...' : "Créer mon compte"}
+                </Button>
+            </form>
 
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-slate-700">Email</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            placeholder="jean.dupont@email.com"
-                            className={inputClass}
-                        />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-slate-700">Mot de passe</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            placeholder="••••••••••••"
-                            minLength="12"
-                            className={inputClass}
-                        />
-                        <span className="text-xs text-slate-400">12 caractères minimum</span>
-                    </div>
-
-                    <Button type="submit" size="lg" disabled={loading || success} className="w-full mt-1">
-                        {loading ? 'Création...' : "M'inscrire"}
-                    </Button>
-                </form>
-
-                <div className="flex items-center gap-3 my-6">
-                    <div className="flex-grow h-px bg-slate-200" />
-                    <span className="text-xs text-slate-400">ou</span>
-                    <div className="flex-grow h-px bg-slate-200" />
-                </div>
-
-                <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
-
-                <div className="mt-8 text-center text-sm text-slate-500">
-                    Déjà un compte ? <Link to="/login" className="text-orange-600 font-semibold hover:underline">Se connecter</Link>
-                </div>
-
+            <div className="flex items-center gap-3 my-7">
+                <div className="flex-grow h-px bg-slate-200" />
+                <span className="text-xs text-slate-400">ou continuer avec</span>
+                <div className="flex-grow h-px bg-slate-200" />
             </div>
-        </div>
+
+            <GoogleSignInButton onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+        </AuthLayout>
     );
 };
 

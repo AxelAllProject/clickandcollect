@@ -1,23 +1,38 @@
-import React from 'react';
-import { ShoppingBag } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
+import Footer from './Footer';
+
+// Les pages d'authentification ont leur propre mise en page plein écran
+// (formulaire + panneau illustré) : ni navbar, ni footer par-dessus.
+const AUTH_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password'];
 
 const Layout = ({ children }) => {
+    const { pathname, hash } = useLocation();
+
+    // React Router ne gère pas les ancres : on remonte en haut à chaque
+    // changement de page, et on scrolle vers la section quand l'URL en cible une
+    // (liens "/#rayons" du footer par exemple).
+    useEffect(() => {
+        if (hash) {
+            const target = document.querySelector(hash);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+        }
+        window.scrollTo(0, 0);
+    }, [pathname, hash]);
+
+    if (AUTH_ROUTES.includes(pathname)) {
+        return children;
+    }
+
     return (
         <div className="flex flex-col min-h-screen bg-slate-50">
             <Navbar />
-            <main className="flex-grow">
-                {children}
-            </main>
-            <footer className="bg-slate-900 text-slate-400 text-sm">
-                <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-slate-200 font-semibold">
-                        <ShoppingBag size={16} />
-                        Click&amp;Collect
-                    </div>
-                    <p>&copy; 2026 Click&amp;Collect. Tous droits réservés.</p>
-                </div>
-            </footer>
+            <main className="flex-grow">{children}</main>
+            <Footer />
         </div>
     );
 };

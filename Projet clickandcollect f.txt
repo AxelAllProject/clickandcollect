@@ -1,0 +1,27 @@
+Voici un état des lieux des trous fonctionnels, classés par priorité :
+
+Manques "métier" qui se sentent vite en usage réel
+
+- Mot de passe oublié : on a le changement de mot de passe (connecté), mais aucun flow "j'ai oublié mon mot de passe" par email
+- Emails transactionnels : aucun email n'est envoyé nulle part (confirmation de commande, commande prête, reçu de paiement) — le client n'a aucune notif hors de l'appli
+- Annulation de commande côté client : un utilisateur ne peut pas annuler sa propre commande, seul l'admin change les statuts
+- Gestion admin des points relais eux-mêmes : on peut gérer les créneaux, mais pas créer/modifier/supprimer un point relais depuis l'admin (ils sont fixés par le seeder)
+- Remboursement : si une commande doit être remboursée après coup, rien n'est prévu côté Stripe/admin pour ça
+
+Fonctionnalités e-commerce "classiques" absentes
+
+- Catégories de produits (le catalogue n'a que recherche + tri, pas de filtrage par type)                           - Upload d'image produit (juste un champ URL
+- Codes promo / réductions
+- Avis et notes sur les produits
+- Produits favoris (on a le point relais favori, pas les produits)
+- Facture/reçu téléchargeable
+
+Obligations légales pour un vrai site marchand en France
+
+Vu qu'il y a du paiement réel en jeu, il manque les pages qu'un site marchand doit légalement avoir : CGV, mentions légales, politique de confidentialité, et unies (RGPD). Pas bloquant pour un projetd'apprentissage, mais à ne pas oublier si ça devient un vrai site un jour.
+
+Déjà identifié dans le README (technique)
+
+- Pagination (produits, commandes) — tout est chargé d'un coup
+- Tests automatisés (JUnit)
+- Migrations de schéma versionnées (Flyway/Liquibase) plutôt que ddl-auto=update
