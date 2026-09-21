@@ -28,6 +28,10 @@
     </scm>
     <properties>
         <java.version>17</java.version>
+        <!-- Lombok 1.18.46 (version heritee du parent Spring Boot 4.1) ne compile pas
+             sous JDK 27 : ExceptionInInitializerError sur com.sun.tools.javac.tree.EndPosTable.
+             1.18.48 corrige le probleme. A retirer quand le parent l'embarquera. -->
+        <lombok.version>1.18.48</lombok.version>
     </properties>
     <dependencies>
         <dependency>
@@ -66,6 +70,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
@@ -89,11 +98,6 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.11.5</version>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.stripe</groupId>

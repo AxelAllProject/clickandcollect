@@ -137,20 +137,35 @@ public class OrderService {
         return new CheckoutResponseDTO(orderDTO, paymentIntent.getClientSecret(), stripeService.getPublishableKey());
     }
 
+    /**
+     * Stripe garantit la livraison "au moins une fois" : le meme evenement peut arriver
+     * plusieurs fois. On sort si la commande est deja marquee payee, sinon chaque
+     * relivraison republierait l'evenement et renverrait un email de confirmation.
+     */
     @Transactional
     public void markOrderPaid(String paymentIntentId) {
         orderRepository.findByStripePaymentIntentId(paymentIntentId)
                 .ifPresent(order -> {
+                    if ("PAID".equals(order.getPaymentStatus())) {
+                        return;
+                    }
                     order.setPaymentStatus("PAID");
                     orderRepository.save(order);
                     eventPublisher.publishEvent(new OrderPaidEvent(order.getId()));
                 });
     }
 
+    /**
+     * Meme garde que markOrderPaid : sans elle, chaque relivraison du webhook d'echec
+     * recrediterait une nouvelle fois le stock des articles de la commande.
+     */
     @Transactional
     public void markOrderFailed(String paymentIntentId) {
         orderRepository.findByStripePaymentIntentId(paymentIntentId)
                 .ifPresent(order -> {
+                    if ("FAILED".equals(order.getPaymentStatus())) {
+                        return;
+                    }
                     order.setPaymentStatus("FAILED");
                     orderRepository.save(order);
 

@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Component
 @Order(1)
-@Profile("!prod")
+@Profile("!prod & !test")
 @RequiredArgsConstructor
 public class DemoDataSeeder implements CommandLineRunner {
 

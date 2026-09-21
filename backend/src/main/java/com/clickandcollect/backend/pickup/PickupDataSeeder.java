@@ -19,7 +19,7 @@ import java.util.List;
  * Désactivé quand le profil "prod" est actif (spring.profiles.active=prod).
  */
 @Component
-@Profile("!prod")
+@Profile("!prod & !test")
 @RequiredArgsConstructor
 public class PickupDataSeeder implements CommandLineRunner {
 
