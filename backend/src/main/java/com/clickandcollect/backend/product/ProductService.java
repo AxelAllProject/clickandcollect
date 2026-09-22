@@ -5,11 +5,11 @@ import com.clickandcollect.backend.product.dto.ProductResponseDTO;
 import com.clickandcollect.backend.common.exception.ResourceNotFoundException;
 import com.clickandcollect.backend.product.Product;
 import com.clickandcollect.backend.product.ProductRepository;
+import com.clickandcollect.backend.common.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,16 +36,12 @@ public class ProductService {
         return mapToResponseDTO(product);
     }
 
-    public List<ProductResponseDTO> getAllProducts(){
-        List<Product> products = productRepository.findAll();
+    public PageResponseDTO<ProductResponseDTO> getProducts(String search, Pageable pageable){
+        Page<Product> products = (search == null || search.isBlank())
+                ? productRepository.findAll(pageable)
+                : productRepository.findByNameContainingIgnoreCase(search.trim(), pageable);
 
-        List<ProductResponseDTO> responseList = new ArrayList<>();
-
-        for (Product product : products) {
-            ProductResponseDTO dto = mapToResponseDTO(product);
-            responseList.add(dto);
-        }
-        return responseList;
+        return PageResponseDTO.from(products, this::mapToResponseDTO);
     }
 
     public ProductResponseDTO updateProduct(Long id, ProductRequestDTO request) {

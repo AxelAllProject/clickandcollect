@@ -1,5 +1,7 @@
 # Click & Collect
 
+![Bannière Click & Collect](frontend/public/brand/banner.png)
+
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-F2F4F9?style=for-the-badge&logo=spring-boot)
@@ -205,7 +207,7 @@ Date d'expiration future et CVC quelconques.
 - `GET /api/auth/config` — expose le Client ID Google (public) au frontend
 
 **Produits**
-- `GET /api/products` — liste des produits
+- `GET /api/products` — liste paginée des produits (`?page=&size=&sort=&search=`)
 - `POST /api/products` / `PUT /api/products/{id}` / `DELETE /api/products/{id}` — gestion (ADMIN)
 
 **Panier**
@@ -220,8 +222,8 @@ Date d'expiration future et CVC quelconques.
 
 **Commandes et paiement**
 - `POST /api/orders/checkout` — valide le panier sur un créneau, crée le paiement Stripe
-- `GET /api/orders` — commandes de l'utilisateur connecté
-- `GET /api/orders/all` — toutes les commandes (ADMIN)
+- `GET /api/orders` — commandes paginées de l'utilisateur connecté (`?page=&size=&sort=`)
+- `GET /api/orders/all` — toutes les commandes, paginées (ADMIN)
 - `PUT /api/orders/{id}/status` — changer le statut d'une commande (ADMIN)
 - `POST /api/payments/webhook` — confirmation de paiement (appelé par Stripe)
 
@@ -232,9 +234,30 @@ Date d'expiration future et CVC quelconques.
 - `PUT /api/profile/2fa` — active/désactive la double authentification
 
 **Administration**
-- `GET /api/admin/users` — liste des utilisateurs
+- `GET /api/admin/users` — liste paginée des utilisateurs (`?page=&size=&sort=`)
 - `PUT /api/admin/users/{id}/role` / `DELETE /api/admin/users/{id}` — gestion des rôles/suppression
 - `POST /api/admin/promote` — promouvoir un utilisateur en admin
+
+**Pagination**
+
+Les listes potentiellement longues (produits, commandes, utilisateurs) sont paginées côté serveur.
+Elles acceptent les paramètres `page` (0 par défaut), `size` et `sort` au format Spring Data
+(`sort=price,desc`), et `GET /api/products` accepte en plus `search` pour filtrer par nom.
+La réponse est une enveloppe :
+
+```json
+{
+  "content": [ "..." ],
+  "page": 0,
+  "size": 12,
+  "totalElements": 137,
+  "totalPages": 12,
+  "first": true,
+  "last": false
+}
+```
+
+Tailles de page par défaut : 12 pour le catalogue, 10 pour les commandes et les utilisateurs.
 
 Le frontend utilise `frontend/src/services/api.js` : un intercepteur Axios ajoute automatiquement `Authorization: Bearer <token>` quand un token est présent dans le `localStorage`.
 
@@ -264,4 +287,3 @@ clickandcollect/
 
 - Couverture de tests automatisés (JUnit, tests d'intégration avec Testcontainers)
 - Migrations de schéma versionnées (Flyway/Liquibase) plutôt que `ddl-auto=update`
-- Pagination sur les listes de produits/commandes

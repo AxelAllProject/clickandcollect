@@ -4,6 +4,8 @@ import api from '../services/api';
 import StatTile from '../components/ui/StatTile';
 import OrdersByStatusChart from '../components/ui/OrdersByStatusChart';
 
+const STATS_PAGE_SIZE = 1000;
+
 const AdminDashboard = () => {
     const [orders, setOrders] = useState([]);
     const [users, setUsers] = useState([]);
@@ -13,14 +15,17 @@ const AdminDashboard = () => {
     useEffect(() => {
         const loadAll = async () => {
             try {
+                // Les endpoints sont pagines : le tableau de bord demande une page
+                // large car il calcule ses agregats sur l'ensemble des donnees.
+                const params = { size: STATS_PAGE_SIZE };
                 const [ordersRes, usersRes, productsRes] = await Promise.all([
-                    api.get('/orders/all'),
-                    api.get('/admin/users'),
-                    api.get('/products'),
+                    api.get('/orders/all', { params }),
+                    api.get('/admin/users', { params }),
+                    api.get('/products', { params }),
                 ]);
-                setOrders(ordersRes.data);
-                setUsers(usersRes.data);
-                setProducts(productsRes.data);
+                setOrders(ordersRes.data.content);
+                setUsers(usersRes.data.content);
+                setProducts(productsRes.data.content);
             } catch (err) {
                 console.error('Erreur chargement dashboard:', err);
             } finally {

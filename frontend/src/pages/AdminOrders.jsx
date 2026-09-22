@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ClipboardList, UtensilsCrossed, MapPin, Clock } from 'lucide-react';
 import api from '../services/api';
 import StatusBadge, { STATUS_OPTIONS } from '../components/ui/StatusBadge';
 import PaymentStatusBadge from '../components/ui/PaymentStatusBadge';
+import Pagination from '../components/ui/Pagination';
+
+const PAGE_SIZE = 10;
 
 const formatSlotDate = (isoDate) =>
     new Date(`${isoDate}T00:00:00`).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -22,21 +25,27 @@ const AdminOrders = () => {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
     const [updatingId, setUpdatingId] = useState(null);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
 
-    const loadOrders = async () => {
+    // Le tri par date decroissante est fait par le backend (sort=createdAt,desc).
+    const loadOrders = useCallback(async () => {
+        setLoading(true);
         try {
-            const res = await api.get('/orders/all');
-            const sorted = [...res.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            setOrders(sorted);
+            const res = await api.get('/orders/all', { params: { page, size: PAGE_SIZE } });
+            setOrders(res.data.content);
+            setTotalPages(res.data.totalPages);
+            setTotalElements(res.data.totalElements);
         } catch (err) {
             console.error('Erreur chargement commandes:', err);
             setMessage('Impossible de charger les commandes.');
         } finally {
             setLoading(false);
         }
-    };
+    }, [page]);
 
-    useEffect(() => { loadOrders(); }, []);
+    useEffect(() => { loadOrders(); }, [loadOrders]);
 
     const handleStatusChange = async (orderId, status) => {
         setUpdatingId(orderId);
@@ -54,7 +63,7 @@ const AdminOrders = () => {
 
     return (
         <div>
-            <h2 className="text-base font-bold text-slate-800 mb-4">Commandes ({orders.length})</h2>
+            <h2 className="text-base font-bold text-slate-800 mb-4">Commandes ({totalElements})</h2>
 
             {message && (
                 <div className="mb-4 p-3 rounded-lg bg-indigo-50 text-indigo-700 text-sm font-medium">
@@ -127,6 +136,14 @@ const AdminOrders = () => {
                     ))}
                 </div>
             )}
+
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                onPageChange={setPage}
+                label="commande"
+            />
         </div>
     );
 };

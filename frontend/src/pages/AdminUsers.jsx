@@ -1,25 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ShieldCheck, ShieldOff, Trash2 } from 'lucide-react';
 import api from '../services/api';
+import Pagination from '../components/ui/Pagination';
+
+const PAGE_SIZE = 10;
 
 const AdminUsers = () => {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
 
-    const loadUsers = async () => {
+    const loadUsers = useCallback(async () => {
+        setLoading(true);
         try {
-            const res = await api.get('/admin/users');
-            setUsers(res.data);
+            const res = await api.get('/admin/users', { params: { page, size: PAGE_SIZE } });
+            setUsers(res.data.content);
+            setTotalPages(res.data.totalPages);
+            setTotalElements(res.data.totalElements);
         } catch (err) {
             console.error('Erreur chargement users', err);
             setMessage('Impossible de charger les utilisateurs.');
         } finally {
             setLoading(false);
         }
-    };
+    }, [page]);
 
-    useEffect(() => { loadUsers(); }, []);
+    useEffect(() => { loadUsers(); }, [loadUsers]);
 
     const changeRole = async (id, role) => {
         try {
@@ -37,7 +46,11 @@ const AdminUsers = () => {
         try {
             await api.delete(`/admin/users/${id}`);
             setMessage('Utilisateur supprimé.');
-            loadUsers();
+            if (users.length === 1 && page > 0) {
+                setPage(page - 1);
+            } else {
+                loadUsers();
+            }
         } catch (err) {
             console.error('Erreur delete', err);
             setMessage("Impossible de supprimer l'utilisateur.");
@@ -46,7 +59,7 @@ const AdminUsers = () => {
 
     return (
         <div>
-            <h2 className="text-base font-bold text-slate-800 mb-4">Utilisateurs ({users.length})</h2>
+            <h2 className="text-base font-bold text-slate-800 mb-4">Utilisateurs ({totalElements})</h2>
             {message && <div className="mb-4 p-3 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium">{message}</div>}
 
             {loading ? (
@@ -94,6 +107,14 @@ const AdminUsers = () => {
                     </table>
                 </div>
             )}
+
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                totalElements={totalElements}
+                onPageChange={setPage}
+                label="utilisateur"
+            />
         </div>
     );
 };

@@ -5,11 +5,11 @@ import com.clickandcollect.backend.common.exception.ResourceNotFoundException;
 import com.clickandcollect.backend.user.Role;
 import com.clickandcollect.backend.user.User;
 import com.clickandcollect.backend.user.UserRepository;
+import com.clickandcollect.backend.common.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,10 +25,10 @@ public class UserService {
         return mapToResponseDTO(saved);
     }
 
-    public List<UserResponseDTO> listUsers() {
-        return userRepository.findAll().stream()
-                .map(this::mapToResponseDTO)
-                .collect(Collectors.toList());
+    public PageResponseDTO<UserResponseDTO> listUsers(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+
+        return PageResponseDTO.from(users, this::mapToResponseDTO);
     }
 
     public UserResponseDTO updateUserRole(Long id, String role) {

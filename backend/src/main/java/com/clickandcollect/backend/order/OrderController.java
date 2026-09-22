@@ -5,13 +5,16 @@ import com.clickandcollect.backend.order.dto.CheckoutResponseDTO;
 import com.clickandcollect.backend.order.dto.OrderResponseDTO;
 import com.clickandcollect.backend.user.User;
 import com.clickandcollect.backend.order.OrderService;
+import com.clickandcollect.backend.common.PageResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 
 @RestController
@@ -33,8 +36,10 @@ public class OrderController {
     }
 
     @GetMapping
-    public List<OrderResponseDTO> getMyOrders(@AuthenticationPrincipal User currentUser){
-        return orderService.getOrdersForUser(currentUser);
+    public PageResponseDTO<OrderResponseDTO> getMyOrders(
+            @AuthenticationPrincipal User currentUser,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
+        return orderService.getOrdersForUser(currentUser, pageable);
     }
 
     @GetMapping("/{id}")
@@ -49,8 +54,9 @@ public class OrderController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/all")
-    public List<OrderResponseDTO> getAllOrders(){
-        return orderService.getAllOrders();
+    public PageResponseDTO<OrderResponseDTO> getAllOrders(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable){
+        return orderService.getAllOrders(pageable);
     }
 
 }

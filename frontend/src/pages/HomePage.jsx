@@ -12,10 +12,10 @@ import {
     Sparkles,
     Star,
     Store,
-    UtensilsCrossed,
 } from 'lucide-react';
 import api from '../services/api';
 import Reveal from '../components/ui/Reveal';
+import ProductImage from '../components/product/ProductImage';
 import CountUp from '../components/ui/CountUp';
 import useScrollProgress from '../hooks/useScrollProgress';
 import StorefrontScene from '../components/illustrations/StorefrontScene';
@@ -130,8 +130,8 @@ const HomePage = () => {
     useEffect(() => {
         const fetchPreview = async () => {
             try {
-                const response = await api.get('/products');
-                setFeaturedProducts(response.data.slice(0, 3));
+                const response = await api.get('/products', { params: { size: 3 } });
+                setFeaturedProducts(response.data.content);
             } catch (err) {
                 console.error("Impossible de charger l'aperçu :", err);
             } finally {
@@ -396,15 +396,10 @@ const HomePage = () => {
                                 className="group bg-white rounded-3xl ring-1 ring-slate-200 overflow-hidden hover:shadow-xl hover:shadow-slate-900/5 hover:-translate-y-1 transition-all duration-300"
                             >
                                 <div className="h-48 bg-brand-50 flex items-center justify-center text-brand-300 overflow-hidden">
-                                    {product.imageUrl ? (
-                                        <img
-                                            src={product.imageUrl}
-                                            alt={product.name}
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                        />
-                                    ) : (
-                                        <UtensilsCrossed size={30} />
-                                    )}
+                                    <ProductImage
+                                        product={product}
+                                        className="transition-transform duration-500 group-hover:scale-105"
+                                    />
                                 </div>
                                 <div className="p-5 flex items-center justify-between gap-3">
                                     <h3 className="font-semibold text-slate-900">{product.name}</h3>
