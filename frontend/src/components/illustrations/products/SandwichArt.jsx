@@ -1,0 +1,36 @@
+import React from 'react';
+
+/** Snacking : sandwich baguette garni. */
+const SandwichArt = ({ className = '' }) => (
+    <svg viewBox="0 0 320 220" className={className} preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <rect width="320" height="220" fill="#FDF4EC" />
+        <circle cx="56" cy="46" r="42" fill="#FAE4CF" opacity="0.85" />
+        <circle cx="272" cy="184" r="46" fill="#F4C7A0" opacity="0.35" />
+        <circle cx="276" cy="44" r="6" fill="#EDA870" opacity="0.6" />
+
+        <g transform="translate(160 112) rotate(-12) translate(-160 -112)">
+            <ellipse cx="160" cy="172" rx="96" ry="12" fill="#C9AE87" opacity="0.28" />
+
+            {/* Demi-baguette basse */}
+            <path d="M46 118h228c8 0 14 7 14 15s-6 15-14 15H46c-8 0-14-7-14-15s6-15 14-15z" fill="#E3BC7C" stroke="#B5813D" strokeWidth="3" />
+
+            {/* Garniture */}
+            <path d="M40 118c22-12 42 2 62-6s36 4 56-4 38 6 58-2 30 0 46 4c-6 8-16 12-28 12H58c-8 0-14-2-18-4z" fill="#8CB699" />
+            <g fill="#D9722B">
+                <ellipse cx="96" cy="112" rx="18" ry="9" />
+                <ellipse cx="168" cy="108" rx="20" ry="9" />
+                <ellipse cx="238" cy="112" rx="18" ry="9" />
+            </g>
+            <g fill="#F0D08C" stroke="#C98F3C" strokeWidth="2">
+                <rect x="118" y="102" width="34" height="10" rx="3" transform="rotate(-8 118 102)" />
+                <rect x="196" y="100" width="34" height="10" rx="3" transform="rotate(7 196 100)" />
+            </g>
+
+            {/* Demi-baguette haute */}
+            <path d="M46 76h228c9 0 16 8 16 18 0 9-7 16-16 16H46c-9 0-16-7-16-16 0-10 7-18 16-18z" fill="#E8B96B" stroke="#B5813D" strokeWidth="3" />
+            <path d="M76 86l14-8M124 86l14-8M172 86l14-8M220 86l14-8" stroke="#C98F3C" strokeWidth="3.5" strokeLinecap="round" />
+        </g>
+    </svg>
+);
+
+export default SandwichArt;

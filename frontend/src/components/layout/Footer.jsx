@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag, MapPin, Mail, Clock } from 'lucide-react';
+import { MapPin, Mail, Clock } from 'lucide-react';
+import BrandMark from '../ui/BrandMark';
 
 const COLONNES = [
     {
@@ -28,7 +29,7 @@ const Footer = () => (
                 <div className="md:col-span-2 max-w-sm">
                     <Link to="/" className="flex items-center gap-2 text-lg font-bold text-white">
                         <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-orange-500 text-white">
-                            <ShoppingBag size={18} strokeWidth={2.25} />
+                            <BrandMark size={19} />
                         </span>
                         Click<span className="text-orange-400">&amp;</span>Collect
                     </Link>
