@@ -27,7 +27,10 @@ import com.clickandcollect.backend.payment.StripeService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import jakarta.transaction.Transactional;
+import com.clickandcollect.backend.common.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.clickandcollect.backend.order.event.OrderPaidEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -259,16 +262,10 @@ public class OrderService {
         );
     }
 
-    public List<OrderResponseDTO> getOrdersForUser(User currentUser) {
-        List<Order> orders = orderRepository.findByUserId(currentUser.getId());
+    public PageResponseDTO<OrderResponseDTO> getOrdersForUser(User currentUser, Pageable pageable) {
+        Page<Order> orders = orderRepository.findByUserId(currentUser.getId(), pageable);
 
-        List<OrderResponseDTO> responseDTOList = new ArrayList<>();
-
-        for (Order order : orders) {
-            OrderResponseDTO dto = mapToOrderResponseDTO(order);
-            responseDTOList.add(dto);
-        }
-        return responseDTOList;
+        return PageResponseDTO.from(orders, this::mapToOrderResponseDTO);
     }
 
     public OrderResponseDTO getOrderById(Long id, User currentUser) {
@@ -285,17 +282,11 @@ public class OrderService {
 
     }
 
-    public List<OrderResponseDTO> getAllOrders(){
+    public PageResponseDTO<OrderResponseDTO> getAllOrders(Pageable pageable){
 
-        List<Order> orders = orderRepository.findAll();
+        Page<Order> orders = orderRepository.findAll(pageable);
 
-        List<OrderResponseDTO> responseList = new ArrayList<>();
-
-        for (Order order : orders) {
-            OrderResponseDTO dto = mapToOrderResponseDTO(order);
-            responseList.add(dto);
-        }
-        return responseList;
+        return PageResponseDTO.from(orders, this::mapToOrderResponseDTO);
     }
 
 }

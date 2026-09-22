@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import {
-    ShoppingBag,
     ShoppingCart,
     LayoutDashboard,
     ClipboardList,
@@ -10,6 +9,7 @@ import {
     LogOut,
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
+import BrandMark from '../ui/BrandMark';
 
 const decodeToken = (token) => {
     try {
@@ -66,7 +66,7 @@ const Navbar = () => {
             <div className="max-w-6xl mx-auto flex justify-between items-center px-4 py-3.5">
                 <Link to="/" className="flex items-center gap-2 text-lg font-bold text-slate-900">
                     <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-brand-600 text-white">
-                        <ShoppingBag size={18} strokeWidth={2.25} />
+                        <BrandMark size={19} />
                     </span>
                     Click<span className="text-orange-600">&amp;</span>Collect
                 </Link>

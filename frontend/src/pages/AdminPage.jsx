@@ -1,16 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Settings, Plus, Pencil, Trash2, Save, X, UtensilsCrossed, ShieldPlus } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Settings, Plus, Pencil, Trash2, Save, X, ShieldPlus } from 'lucide-react';
 import api from '../services/api';
 import AdminUsers from './AdminUsers';
 import AdminOrders from './AdminOrders';
 import AdminDashboard from './AdminDashboard';
 import AdminSlots from './AdminSlots';
 import AdminLocations from './AdminLocations';
+import ProductImage from '../components/product/ProductImage';
+import Pagination from '../components/ui/Pagination';
+
+const PAGE_SIZE = 10;
 
 const fieldClass = "w-full p-2.5 mt-1 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 outline-none transition-shadow";
 
 const AdminPage = () => {
     const [products, setProducts] = useState([]);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
 
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
@@ -27,19 +34,21 @@ const AdminPage = () => {
     const [editImageUrl, setEditImageUrl] = useState('');
     const [editStock, setEditStock] = useState('');
 
-    const loadProducts = async () => {
+    const loadProducts = useCallback(async () => {
         try {
-            const response = await api.get('/products');
-            setProducts(response.data);
+            const response = await api.get('/products', { params: { page, size: PAGE_SIZE } });
+            setProducts(response.data.content);
+            setTotalPages(response.data.totalPages);
+            setTotalElements(response.data.totalElements);
         } catch (err) {
             console.error("Erreur de chargement:", err);
             setMessage("Impossible de charger les produits.");
         }
-    };
+    }, [page]);
 
     useEffect(() => {
         loadProducts();
-    }, []);
+    }, [loadProducts]);
 
     const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -58,7 +67,7 @@ const AdminPage = () => {
             setName(''); setDescription(''); setPrice(''); setImageUrl('');
             setStock('');
 
-            loadProducts();
+            if (page > 0) setPage(0); else loadProducts();
         } catch (err) {
             console.error("Erreur d'ajout:", err);
             setMessage("Erreur lors de l'ajout. Êtes-vous bien ADMIN ?");
@@ -71,7 +80,7 @@ const AdminPage = () => {
         try {
             await api.delete(`/products/${id}`);
             setMessage("Produit supprimé.");
-            loadProducts();
+            if (products.length === 1 && page > 0) setPage(page - 1); else loadProducts();
         } catch (err) {
             console.error("Erreur de suppression:", err);
             setMessage("Erreur lors de la suppression.");
@@ -191,6 +200,9 @@ const AdminPage = () => {
                                     <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
                                         placeholder="https://..."
                                         className={fieldClass} />
+                                    <p className="mt-1 text-xs text-slate-500">
+                                        Sans image, une illustration maison est choisie d&apos;après le nom du produit.
+                                    </p>
                                 </div>
 
                                 <button type="submit" className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg p-3 mt-2 transition-colors">
@@ -226,7 +238,7 @@ const AdminPage = () => {
 
                     <div className="lg:col-span-2">
                         <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
-                            <h2 className="text-base font-bold text-slate-800 mb-4">Stock actuel ({products.length})</h2>
+                            <h2 className="text-base font-bold text-slate-800 mb-4">Stock actuel ({totalElements})</h2>
 
                             <div className="flex flex-col gap-3">
                                 {products.length === 0 ? (
@@ -259,11 +271,7 @@ const AdminPage = () => {
                                                 <div className="flex justify-between items-center">
                                                     <div className="flex items-center gap-4 min-w-0">
                                                         <div className="w-11 h-11 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-300">
-                                                            {product.imageUrl ? (
-                                                                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
-                                                            ) : (
-                                                                <UtensilsCrossed size={16} />
-                                                            )}
+                                                            <ProductImage product={product} />
                                                         </div>
                                                         <div className="min-w-0">
                                                             <h3 className="font-semibold text-slate-800 text-sm truncate">{product.name}</h3>
@@ -288,6 +296,14 @@ const AdminPage = () => {
                                     ))
                                 )}
                             </div>
+
+                            <Pagination
+                                page={page}
+                                totalPages={totalPages}
+                                totalElements={totalElements}
+                                onPageChange={setPage}
+                                label="produit"
+                            />
                         </div>
                     </div>
 

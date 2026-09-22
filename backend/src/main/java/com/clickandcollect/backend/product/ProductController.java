@@ -4,12 +4,13 @@ import com.clickandcollect.backend.product.dto.ProductRequestDTO;
 import com.clickandcollect.backend.product.dto.ProductResponseDTO;
 import com.clickandcollect.backend.product.Product;
 import com.clickandcollect.backend.product.ProductService;
+import com.clickandcollect.backend.common.PageResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -19,8 +20,10 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public List<ProductResponseDTO> getAllProduct(){
-        return productService.getAllProducts();
+    public PageResponseDTO<ProductResponseDTO> getAllProduct(
+            @RequestParam(required = false) String search,
+            @PageableDefault(size = 12, sort = "id") Pageable pageable){
+        return productService.getProducts(search, pageable);
     }
 
     @GetMapping("/{id}")

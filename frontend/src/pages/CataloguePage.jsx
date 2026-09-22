@@ -1,23 +1,47 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, UtensilsCrossed, Minus, Plus, PackageSearch, AlertCircle, ArrowUpDown } from 'lucide-react';
+import { Search, Minus, Plus, PackageSearch, AlertCircle, ArrowUpDown } from 'lucide-react';
 import api from '../services/api';
+import ProductImage from '../components/product/ProductImage';
+import Pagination from '../components/ui/Pagination';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 
+// La valeur envoyee au backend suit le format Spring Data : "champ,direction".
 const SORT_OPTIONS = [
-    { value: 'default', label: 'Pertinence' },
-    { value: 'price-asc', label: 'Prix croissant' },
-    { value: 'price-desc', label: 'Prix décroissant' },
-    { value: 'name', label: 'Nom (A-Z)' },
+    { value: 'id,asc', label: 'Pertinence' },
+    { value: 'price,asc', label: 'Prix croissant' },
+    { value: 'price,desc', label: 'Prix décroissant' },
+    { value: 'name,asc', label: 'Nom (A-Z)' },
 ];
+
+const PAGE_SIZE = 12;
+
+const ProductGridSkeleton = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-slate-200 overflow-hidden bg-white">
+                <div className="h-44 skeleton" />
+                <div className="p-4 flex flex-col gap-2">
+                    <div className="h-4 w-2/3 rounded skeleton" />
+                    <div className="h-3 w-full rounded skeleton" />
+                    <div className="h-8 w-full rounded skeleton mt-2" />
+                </div>
+            </div>
+        ))}
+    </div>
+);
 
 const CataloguePage = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [search, setSearch] = useState('');
-    const [sort, setSort] = useState('default');
+    const [debouncedSearch, setDebouncedSearch] = useState('');
+    const [sort, setSort] = useState('id,asc');
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
     const [quantities, setQuantities] = useState({});
     const [addingId, setAddingId] = useState(null);
 
@@ -25,11 +49,32 @@ const CataloguePage = () => {
     const { showToast } = useToast();
     const navigate = useNavigate();
 
+    // On laisse retomber la frappe avant d'interroger le serveur.
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedSearch(search), 350);
+        return () => clearTimeout(timer);
+    }, [search]);
+
+    // Une nouvelle recherche ou un nouveau tri repart de la premiere page.
+    useEffect(() => {
+        setPage(0);
+    }, [debouncedSearch, sort]);
+
     useEffect(() => {
         const loadProducts = async () => {
+            setLoading(true);
             try {
-                const response = await api.get('/products');
-                setProducts(response.data);
+                const response = await api.get('/products', {
+                    params: {
+                        page,
+                        size: PAGE_SIZE,
+                        sort,
+                        search: debouncedSearch.trim() || undefined,
+                    },
+                });
+                setProducts(response.data.content);
+                setTotalPages(response.data.totalPages);
+                setTotalElements(response.data.totalElements);
             } catch (err) {
                 console.error("Erreur lors de la récupération des produits :", err);
                 setError("Impossible de charger le menu. Êtes-vous bien connecté ?");
@@ -39,7 +84,7 @@ const CataloguePage = () => {
         };
 
         loadProducts();
-    }, []);
+    }, [page, sort, debouncedSearch]);
 
     const getQuantity = (id) => quantities[id] || 1;
 
@@ -68,40 +113,11 @@ const CataloguePage = () => {
         }
     };
 
-    const filteredProducts = useMemo(() => {
-        const list = products.filter(p => p.name && p.name.toLowerCase().includes(search.toLowerCase()));
-        switch (sort) {
-            case 'price-asc':
-                return [...list].sort((a, b) => a.price - b.price);
-            case 'price-desc':
-                return [...list].sort((a, b) => b.price - a.price);
-            case 'name':
-                return [...list].sort((a, b) => a.name.localeCompare(b.name));
-            default:
-                return list;
-        }
-    }, [products, search, sort]);
-
     return (
         <div className="pb-16">
             <div className="max-w-6xl mx-auto px-4 pt-10">
                 <h1 className="text-2xl font-bold text-slate-900 mb-1">Notre menu</h1>
                 <p className="text-slate-500 text-sm mb-8">Des produits frais, prêts à emporter.</p>
-
-                {loading && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                        {Array.from({ length: 8 }).map((_, i) => (
-                            <div key={i} className="rounded-xl border border-slate-200 overflow-hidden bg-white">
-                                <div className="h-44 skeleton" />
-                                <div className="p-4 flex flex-col gap-2">
-                                    <div className="h-4 w-2/3 rounded skeleton" />
-                                    <div className="h-3 w-full rounded skeleton" />
-                                    <div className="h-8 w-full rounded skeleton mt-2" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
 
                 {error && (
                     <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 p-3.5 rounded-lg text-sm max-w-md mx-auto mb-8">
@@ -110,7 +126,7 @@ const CataloguePage = () => {
                     </div>
                 )}
 
-                {!loading && !error && (
+                {!error && (
                     <div>
                         <div className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                             <div className="relative flex-grow sm:max-w-sm">
@@ -137,11 +153,12 @@ const CataloguePage = () => {
                                 </select>
                             </div>
 
-                            <span className="text-sm text-slate-400 sm:ml-auto">{filteredProducts.length} produit{filteredProducts.length > 1 ? 's' : ''}</span>
+                            <span className="text-sm text-slate-400 sm:ml-auto">{totalElements} produit{totalElements > 1 ? 's' : ''}</span>
                         </div>
 
+                        {loading ? <ProductGridSkeleton /> : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-                            {filteredProducts.map((product, idx) => {
+                            {products.map((product, idx) => {
                                 const lowStock = product.stock > 0 && product.stock <= 5;
                                 const outOfStock = product.stock === 0;
                                 return (
@@ -151,11 +168,10 @@ const CataloguePage = () => {
                                         style={{ animationDelay: `${Math.min(idx, 8) * 50}ms` }}
                                     >
                                         <div className="relative h-44 bg-slate-100 flex items-center justify-center overflow-hidden text-slate-300">
-                                            {product.imageUrl ? (
-                                                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-                                            ) : (
-                                                <UtensilsCrossed size={30} />
-                                            )}
+                                            <ProductImage
+                                                product={product}
+                                                className="transition-transform duration-300 group-hover:scale-110"
+                                            />
                                             {outOfStock && (
                                                 <span className="absolute top-3 left-3 bg-slate-900/85 text-white text-xs font-semibold px-2 py-1 rounded-md">Épuisé</span>
                                             )}
@@ -201,13 +217,23 @@ const CataloguePage = () => {
                                 );
                             })}
 
-                            {filteredProducts.length === 0 && (
+                            {products.length === 0 && (
                                 <div className="col-span-full flex flex-col items-center text-center text-slate-500 bg-white p-12 rounded-xl border border-slate-200">
                                     <PackageSearch size={32} className="text-slate-300 mb-3" />
-                                    {products.length === 0 ? "Aucun produit n'est disponible pour le moment." : 'Aucun résultat pour cette recherche.'}
+                                    {debouncedSearch.trim() ? 'Aucun résultat pour cette recherche.' : "Aucun produit n'est disponible pour le moment."}
                                 </div>
                             )}
                         </div>
+                        )}
+
+                        <Pagination
+                            page={page}
+                            totalPages={totalPages}
+                            totalElements={totalElements}
+                            onPageChange={setPage}
+                            label="produit"
+                            accent="orange"
+                        />
                     </div>
                 )}
             </div>

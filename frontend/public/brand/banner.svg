@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="Click &amp; Collect, l&#8217;épicerie de quartier en ligne">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#244936"/>
+      <stop offset="1" stop-color="#132A1F"/>
+    </linearGradient>
+    <clipPath id="r0"><rect x="742" y="44" width="200" height="150" rx="24"/></clipPath><clipPath id="r1"><rect x="960" y="44" width="190" height="150" rx="24"/></clipPath><clipPath id="r2"><rect x="742" y="214" width="408" height="142" rx="24"/></clipPath>
+  </defs>
+  <rect width="1200" height="400" fill="url(#bg)"/>
+  <circle cx="60" cy="32" r="120" fill="#427658" opacity="0.28"/>
+  <circle cx="504" cy="424" r="144" fill="#2E5C44" opacity="0.45"/>
+  <circle cx="330" cy="352" r="9" fill="#E58C48" opacity="0.75"/>
+  <g transform="translate(64 40) scale(0.7500)"><rect width="64" height="64" rx="18" fill="#FBF8F3"/><path d="M17 39h30l-3.1 25.6A5 5 0 0 1 38.9 69H25.1a5 5 0 0 1-5-4.4z" fill="#2E5C44"/><path d="M23.3 40.3v-5a8.7 8.7 0 0 1 17.4 0v5" fill="none" stroke="#E58C48" stroke-width="4.4" stroke-linecap="round"/><path d="M25.8 53.5l4.8 5.2 8.6-9.7" fill="none" stroke="#FBF8F3" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/></g>
+  <text x="126" y="70" font-family="Inter, Helvetica, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="3.2" fill="#B7D2BF">CLICK &amp; COLLECT</text>
+  <text x="64" y="172" font-family="Fraunces, Georgia, 'Times New Roman', serif" font-size="40" font-weight="700" fill="#FBF8F3">L&#8217;épicerie de quartier,</text>
+  <text x="64" y="219" font-family="Fraunces, Georgia, 'Times New Roman', serif" font-size="40" font-weight="700" fill="#EDA870">en ligne.</text>
+  <text x="64" y="252" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" fill="#DCE9DF">Produits frais des Hauts-de-France,</text>
+  <text x="64" y="277" font-family="Inter, Helvetica, Arial, sans-serif" font-size="17" fill="#DCE9DF">retirés au point relais et au créneau de votre choix.</text>
+  <g transform="translate(64 296)">
+    <rect width="232" height="46" rx="23" fill="#BE5B1C"/>
+    <text x="116" y="31" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-size="16" font-weight="700" fill="#FBF8F3">Commander en 3 clics</text>
+    <path d="M266 21l6 7 12-14" fill="none" stroke="#B7D2BF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="304" y="29" font-family="Inter, Helvetica, Arial, sans-serif" font-size="15" fill="#B7D2BF">Retrait gratuit</text>
+  </g>
+  <g clip-path="url(#r0)"><g transform="translate(732.91 44.00) scale(0.6818)">
+        <rect width="320" height="220" fill="#FDF4EC" />
+        <circle cx="258" cy="46" r="52" fill="#FAE4CF" opacity="0.7" />
+        <circle cx="52" cy="184" r="40" fill="#F4C7A0" opacity="0.35" />
+        <circle cx="46" cy="44" r="6" fill="#EDA870" opacity="0.7" />
+        <circle cx="286" cy="176" r="9" fill="#EDA870" opacity="0.45" />
+        <g transform="translate(0 6)">
+            <ellipse cx="160" cy="166" rx="92" ry="12" fill="#C9AE87" opacity="0.3" />
+            <path
+                d="M62 156c0-58 44-96 98-96s98 38 98 96c0 11-14 15-21 5-20-28-46-42-77-42s-57 14-77 42c-7 10-21 6-21-5z"
+                fill="#E8B96B"
+            />
+            <path
+                d="M62 156c0-58 44-96 98-96s98 38 98 96c0 11-14 15-21 5-20-28-46-42-77-42s-57 14-77 42c-7 10-21 6-21-5z"
+                fill="none"
+                stroke="#C98F3C"
+                stroke-width="3"
+            />
+            <ellipse cx="66" cy="150" rx="15" ry="11" transform="rotate(-24 66 150)" fill="#E8B96B" stroke="#C98F3C" stroke-width="3" />
+            <ellipse cx="254" cy="150" rx="15" ry="11" transform="rotate(24 254 150)" fill="#E8B96B" stroke="#C98F3C" stroke-width="3" />
+            <path d="M104 142c8-22 18-36 26-44M139 124c4-24 6-40 6-50M181 124c-4-24-6-40-6-50M216 142c-8-22-18-36-26-44"
+                stroke="#C98F3C" stroke-width="3.5" stroke-linecap="round" fill="none" />
+            <path d="M120 96c10-10 24-16 40-16s30 6 40 16" stroke="#F2D9A8" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.8" />
+        </g>
+    </g></g><rect x="742" y="44" width="200" height="150" rx="24" fill="none" stroke="#FBF8F3" stroke-width="3" opacity="0.22"/><g clip-path="url(#r1)"><g transform="translate(945.91 44.00) scale(0.6818)">
+        <rect width="320" height="220" fill="#FDF4EC" />
+        <circle cx="46" cy="42" r="40" fill="#FAE4CF" opacity="0.8" />
+        <circle cx="286" cy="192" r="46" fill="#F4C7A0" opacity="0.4" />
+        <circle cx="288" cy="40" r="6" fill="#E58C48" opacity="0.6" />
+        <g transform="translate(160 112)">
+            <circle cx="0" cy="8" r="92" fill="#C9AE87" opacity="0.3" />
+            <circle cx="0" cy="0" r="92" fill="#D8A860" />
+            <circle cx="86.00" cy="0.00" r="9" fill="#E3BC7C"/><circle cx="83.07" cy="22.26" r="9" fill="#E3BC7C"/><circle cx="74.48" cy="43.00" r="9" fill="#E3BC7C"/><circle cx="60.81" cy="60.81" r="9" fill="#E3BC7C"/><circle cx="43.00" cy="74.48" r="9" fill="#E3BC7C"/><circle cx="22.26" cy="83.07" r="9" fill="#E3BC7C"/><circle cx="0.00" cy="86.00" r="9" fill="#E3BC7C"/><circle cx="-22.26" cy="83.07" r="9" fill="#E3BC7C"/><circle cx="-43.00" cy="74.48" r="9" fill="#E3BC7C"/><circle cx="-60.81" cy="60.81" r="9" fill="#E3BC7C"/><circle cx="-74.48" cy="43.00" r="9" fill="#E3BC7C"/><circle cx="-83.07" cy="22.26" r="9" fill="#E3BC7C"/><circle cx="-86.00" cy="0.00" r="9" fill="#E3BC7C"/><circle cx="-83.07" cy="-22.26" r="9" fill="#E3BC7C"/><circle cx="-74.48" cy="-43.00" r="9" fill="#E3BC7C"/><circle cx="-60.81" cy="-60.81" r="9" fill="#E3BC7C"/><circle cx="-43.00" cy="-74.48" r="9" fill="#E3BC7C"/><circle cx="-22.26" cy="-83.07" r="9" fill="#E3BC7C"/><circle cx="-0.00" cy="-86.00" r="9" fill="#E3BC7C"/><circle cx="22.26" cy="-83.07" r="9" fill="#E3BC7C"/><circle cx="43.00" cy="-74.48" r="9" fill="#E3BC7C"/><circle cx="60.81" cy="-60.81" r="9" fill="#E3BC7C"/><circle cx="74.48" cy="-43.00" r="9" fill="#E3BC7C"/><circle cx="83.07" cy="-22.26" r="9" fill="#E3BC7C"/>
+            <circle cx="0" cy="0" r="74" fill="#EDC98F" />
+            <circle cx="0" cy="0" r="74" fill="none" stroke="#B5813D" stroke-width="3" />
+            <ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(0)" opacity="0.95"/><ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(36)" opacity="0.95"/><ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(72)" opacity="0.95"/><ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(108)" opacity="0.95"/><ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(144)" opacity="0.95"/><ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(180)" opacity="0.95"/><ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(216)" opacity="0.95"/><ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(252)" opacity="0.95"/><ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(288)" opacity="0.95"/><ellipse cx="0" cy="-42" rx="13" ry="26" fill="#F2D9A8" stroke="#D9722B" stroke-width="2.5" transform="rotate(324)" opacity="0.95"/>
+            <circle cx="0" cy="0" r="20" fill="#EDA870" />
+            <circle cx="0" cy="0" r="20" fill="none" stroke="#BE5B1C" stroke-width="2.5" />
+            <circle cx="-5" cy="-5" r="5" fill="#FDF4EC" opacity="0.6" />
+        </g>
+    </g></g><rect x="960" y="44" width="190" height="150" rx="24" fill="none" stroke="#FBF8F3" stroke-width="3" opacity="0.22"/><g clip-path="url(#r2)"><g transform="translate(742.00 144.75) scale(1.2750)">
+        <rect width="320" height="220" fill="#F0F5F1" />
+        <circle cx="58" cy="50" r="44" fill="#DCE9DF" opacity="0.9" />
+        <circle cx="274" cy="186" r="48" fill="#B7D2BF" opacity="0.4" />
+        <circle cx="272" cy="44" r="7" fill="#8CB699" opacity="0.7" />
+        <circle cx="40" cy="166" r="5" fill="#8CB699" opacity="0.5" />
+        <g transform="translate(0 6)">
+            <ellipse cx="160" cy="176" rx="82" ry="11" fill="#244936" opacity="0.18" />
+            <ellipse cx="116" cy="106" rx="34" ry="24" fill="#8CB699" />
+            <ellipse cx="206" cy="104" rx="34" ry="24" fill="#629674" />
+            <ellipse cx="160" cy="94" rx="32" ry="24" fill="#A9C7B2" />
+            <path d="M160 78c-9-11-7-23 0-28 8 5 9 18 0 28z" fill="#B7D2BF" />
+            <path d="M124 100c8 10 18 16 30 18M204 98c-8 10-18 16-30 18" stroke="#427658" stroke-width="3" stroke-linecap="round" fill="none" />
+            <circle cx="126" cy="116" r="12" fill="#D9722B" />
+            <circle cx="122" cy="112" r="4" fill="#FAE4CF" opacity="0.6" />
+            <circle cx="200" cy="118" r="10" fill="#BE5B1C" />
+            <path d="M126 105l-5-6M126 105l5-6" stroke="#427658" stroke-width="3" stroke-linecap="round" />
+            <circle cx="162" cy="116" r="12" fill="#DCE9DF" stroke="#8CB699" stroke-width="3" />
+            <circle cx="162" cy="116" r="5" fill="#B7D2BF" />
+            <path d="M74 126h172c0 34-38 58-86 58s-86-24-86-58z" fill="#FBF8F3" />
+            <path d="M74 126h172c0 34-38 58-86 58s-86-24-86-58z" fill="none" stroke="#2E5C44" stroke-width="4" stroke-linejoin="round" />
+            <path d="M92 146c6 18 30 30 68 30" stroke="#D2C7B5" stroke-width="5" stroke-linecap="round" fill="none" />
+            <rect x="66" y="118" width="188" height="12" rx="6" fill="#DCE9DF" stroke="#2E5C44" stroke-width="4" />
+        </g>
+    </g></g><rect x="742" y="214" width="408" height="142" rx="24" fill="none" stroke="#FBF8F3" stroke-width="3" opacity="0.22"/>
+</svg>

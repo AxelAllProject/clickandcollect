@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Check } from 'lucide-react';
 import MarketCrateScene from '../illustrations/MarketCrateScene';
+import BrandMark from '../ui/BrandMark';
 
 const DEFAULT_HIGHLIGHTS = [
     'Des produits frais de producteurs locaux',
@@ -37,7 +38,7 @@ const AuthLayout = ({
             <div className="flex items-center justify-between gap-4">
                 <Link to="/" className="flex items-center gap-2 text-lg font-bold text-slate-900">
                     <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-brand-600 text-white">
-                        <ShoppingBag size={18} strokeWidth={2.25} />
+                        <BrandMark size={19} />
                     </span>
                     Click<span className="text-orange-600">&amp;</span>Collect
                 </Link>

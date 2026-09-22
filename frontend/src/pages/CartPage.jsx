@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Minus, Plus, X, ShoppingCart, UtensilsCrossed, AlertCircle } from 'lucide-react';
+import { Minus, Plus, X, ShoppingCart, AlertCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import Button from '../components/ui/Button';
+import ProductImage from '../components/product/ProductImage';
 
 const CartPage = () => {
     const { cart, loading, updateItem, removeItem, clearCart } = useCart();
@@ -86,11 +87,7 @@ const CartPage = () => {
                             {items.map((item) => (
                                 <div key={item.id} className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center gap-4">
                                     <div className="w-14 h-14 bg-slate-100 rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-300">
-                                        {item.productImageUrl ? (
-                                            <img src={item.productImageUrl} alt={item.productName} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <UtensilsCrossed size={20} />
-                                        )}
+                                        <ProductImage product={item} />
                                     </div>
 
                                     <div className="flex-grow min-w-0">

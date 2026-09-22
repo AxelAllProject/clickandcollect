@@ -2,7 +2,10 @@ package com.clickandcollect.backend.admin;
 
 import com.clickandcollect.backend.user.UserResponseDTO;
 import com.clickandcollect.backend.admin.UserService;
+import com.clickandcollect.backend.common.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -31,8 +33,9 @@ public class AdminController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/users")
-    public List<UserResponseDTO> listUsers(){
-        return userService.listUsers();
+    public PageResponseDTO<UserResponseDTO> listUsers(
+            @PageableDefault(size = 10, sort = "id") Pageable pageable){
+        return userService.listUsers(pageable);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

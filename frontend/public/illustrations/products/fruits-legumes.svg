@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 220" width="320" height="220" role="img" aria-label="Fruits et légumes">
+        <rect width="320" height="220" fill="#F0F5F1" />
+        <circle cx="56" cy="46" r="42" fill="#DCE9DF" opacity="0.9" />
+        <circle cx="274" cy="184" r="46" fill="#B7D2BF" opacity="0.4" />
+        <circle cx="276" cy="42" r="6" fill="#8CB699" opacity="0.7" />
+        <g>
+            <ellipse cx="160" cy="180" rx="90" ry="12" fill="#244936" opacity="0.16" />
+            <path d="M160 74c16-12 40-8 46 12 7 22-6 56-24 62-8 3-14-2-22-2s-14 5-22 2c-18-6-31-40-24-62 6-20 30-24 46-12z" fill="#D9722B" />
+            <path d="M138 84c-8 6-12 18-10 30" stroke="#FAE4CF" stroke-width="5" stroke-linecap="round" fill="none" opacity="0.55" />
+            <path d="M160 74V54" stroke="#79370F" stroke-width="6" stroke-linecap="round" />
+            <path d="M160 60c12-14 28-14 34-10-2 12-16 20-34 14z" fill="#629674" />
+            <path d="M242 112c10 6 16 18 16 30 0 16-13 28-28 28s-28-12-28-28c0-12 6-24 16-30 6-4 8-10 8-16h8c0 6 2 12 8 16z" fill="#A9C7B2" />
+            <path d="M230 90v-12" stroke="#79370F" stroke-width="5" stroke-linecap="round" />
+            <path d="M216 132c-4 6-5 14-3 21" stroke="#F0F5F1" stroke-width="4.5" stroke-linecap="round" fill="none" opacity="0.6" />
+            <g transform="rotate(-18 82 140)">
+                <path d="M82 104l20 8-12 58a9 9 0 0 1-17 0l-11-58z" fill="#E58C48" stroke="#BE5B1C" stroke-width="3" stroke-linejoin="round" />
+                <path d="M70 130h14M72 146h14" stroke="#BE5B1C" stroke-width="3" stroke-linecap="round" />
+                <path d="M82 104c-4-12 2-22 10-24 4 8 2 18-4 24zM82 104c-10-8-20-6-24 0 6 6 16 8 24 0z" fill="#629674" />
+            </g>
+        </g>
+    </svg>

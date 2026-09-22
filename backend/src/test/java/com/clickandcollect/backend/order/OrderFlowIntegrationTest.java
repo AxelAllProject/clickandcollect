@@ -168,12 +168,13 @@ class OrderFlowIntegrationTest {
         Order enBase = orderRepository.findById(orderId).orElseThrow();
         assertThat(enBase.getStripePaymentIntentId()).isEqualTo("pi_test_123");
 
-        // Le client retrouve sa commande
+        // Le client retrouve sa commande dans la premiere page de ses commandes
         mockMvc.perform(get("/api/orders").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(orderId))
-                .andExpect(jsonPath("$[0].customerEmail").value("camille@test.fr"));
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(orderId))
+                .andExpect(jsonPath("$.content[0].customerEmail").value("camille@test.fr"));
     }
 
     @Test

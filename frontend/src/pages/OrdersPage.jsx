@@ -5,6 +5,9 @@ import api from '../services/api';
 import StatusBadge from '../components/ui/StatusBadge';
 import PaymentStatusBadge from '../components/ui/PaymentStatusBadge';
 import Button from '../components/ui/Button';
+import Pagination from '../components/ui/Pagination';
+
+const PAGE_SIZE = 10;
 
 const formatSlotDate = (isoDate) =>
     new Date(`${isoDate}T00:00:00`).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -24,13 +27,19 @@ const OrdersPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [cancellingId, setCancellingId] = useState(null);
+    const [page, setPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
 
+    // Le tri par date decroissante est fait par le backend (sort=createdAt,desc).
     useEffect(() => {
         const loadOrders = async () => {
+            setLoading(true);
             try {
-                const res = await api.get('/orders');
-                const sorted = [...res.data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                setOrders(sorted);
+                const res = await api.get('/orders', { params: { page, size: PAGE_SIZE } });
+                setOrders(res.data.content);
+                setTotalPages(res.data.totalPages);
+                setTotalElements(res.data.totalElements);
             } catch (err) {
                 console.error('Erreur chargement commandes:', err);
                 setError("Impossible de charger vos commandes.");
@@ -39,7 +48,7 @@ const OrdersPage = () => {
             }
         };
         loadOrders();
-    }, []);
+    }, [page]);
 
     const handleCancel = async (orderId) => {
         if (!window.confirm('Annuler cette commande ?')) return;
@@ -143,6 +152,15 @@ const OrdersPage = () => {
                         </div>
                     ))}
                 </div>
+
+                <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    totalElements={totalElements}
+                    onPageChange={setPage}
+                    label="commande"
+                    accent="orange"
+                />
             </div>
         </div>
     );

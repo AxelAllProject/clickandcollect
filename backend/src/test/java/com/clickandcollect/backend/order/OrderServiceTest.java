@@ -35,6 +35,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import com.clickandcollect.backend.common.PageResponseDTO;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -544,16 +548,19 @@ class OrderServiceTest {
         @Test
         @DisplayName("Le client ne recoit que ses propres commandes")
         void getOrdersForUser_filtreParUtilisateur() {
-            when(orderRepository.findByUserId(1L)).thenReturn(List.of(commandeDeCamille()));
+            Pageable pageable = PageRequest.of(0, 10);
+            when(orderRepository.findByUserId(eq(1L), any(Pageable.class)))
+                    .thenReturn(new PageImpl<>(List.of(commandeDeCamille()), pageable, 1));
             when(orderItemRepository.findByOrderId(1000L)).thenReturn(List.of());
             when(orderRepository.countByPickupSlotIdAndPaymentStatusNotAndStatusNot(anyLong(), anyString(), anyString()))
                     .thenReturn(0L);
 
-            List<OrderResponseDTO> commandes = orderService.getOrdersForUser(camille);
+            PageResponseDTO<OrderResponseDTO> commandes = orderService.getOrdersForUser(camille, pageable);
 
-            assertThat(commandes).hasSize(1);
-            assertThat(commandes.get(0).getUserId()).isEqualTo(1L);
-            verify(orderRepository).findByUserId(1L);
+            assertThat(commandes.content()).hasSize(1);
+            assertThat(commandes.content().get(0).getUserId()).isEqualTo(1L);
+            assertThat(commandes.totalElements()).isEqualTo(1);
+            verify(orderRepository).findByUserId(eq(1L), any(Pageable.class));
         }
     }
 

@@ -1,0 +1,45 @@
+import React from 'react';
+
+/** Traiteur salé : quiche dorée avec une part découpée. */
+const QuicheArt = ({ className = '' }) => (
+    <svg viewBox="0 0 320 220" className={className} preserveAspectRatio="xMidYMid slice" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <rect width="320" height="220" fill="#F4EEE4" />
+        <circle cx="270" cy="52" r="48" fill="#E7DFD1" opacity="0.9" />
+        <circle cx="44" cy="180" r="38" fill="#E8D5B5" opacity="0.5" />
+        <circle cx="48" cy="46" r="6" fill="#C9AE87" opacity="0.6" />
+
+        <g>
+            <ellipse cx="150" cy="168" rx="92" ry="12" fill="#C9AE87" opacity="0.3" />
+
+            {/* Moule */}
+            <ellipse cx="150" cy="128" rx="92" ry="34" fill="#C9AE87" />
+            <ellipse cx="150" cy="118" rx="92" ry="34" fill="#E3BC7C" />
+            <ellipse cx="150" cy="118" rx="92" ry="34" fill="none" stroke="#B5813D" strokeWidth="3" />
+
+            {/* Appareil */}
+            <ellipse cx="150" cy="112" rx="74" ry="26" fill="#F0D08C" />
+            <ellipse cx="150" cy="112" rx="74" ry="26" fill="none" stroke="#C98F3C" strokeWidth="2.5" />
+
+            {/* Lardons et persil */}
+            <g fill="#BE5B1C">
+                <rect x="112" y="102" width="16" height="7" rx="3.5" transform="rotate(-12 112 102)" />
+                <rect x="158" y="96" width="18" height="7" rx="3.5" transform="rotate(14 158 96)" />
+                <rect x="136" y="120" width="15" height="7" rx="3.5" transform="rotate(-6 136 120)" />
+                <rect x="184" y="116" width="16" height="7" rx="3.5" transform="rotate(-20 184 116)" />
+            </g>
+            <circle cx="128" cy="116" r="3.5" fill="#629674" />
+            <circle cx="176" cy="110" r="3" fill="#629674" />
+            <circle cx="150" cy="100" r="3" fill="#8CB699" />
+
+            {/* Part découpée */}
+            <g transform="translate(212 150) rotate(12)">
+                <path d="M0 0l58-20 8 24-54 16z" fill="#E3BC7C" stroke="#B5813D" strokeWidth="3" strokeLinejoin="round" />
+                <path d="M6 -2l50-17 5 15-47 14z" fill="#F0D08C" />
+                <circle cx="34" cy="0" r="3.5" fill="#BE5B1C" />
+                <circle cx="20" cy="4" r="3" fill="#629674" />
+            </g>
+        </g>
+    </svg>
+);
+
+export default QuicheArt;
